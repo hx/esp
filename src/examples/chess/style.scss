@@ -1,0 +1,59 @@
+.chess-board {
+  position: relative;
+  padding-top: 100%;
+
+  .chess-board-inner {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    .rank {
+      width: 100%;
+      height: 12.5%;
+      display: flex;
+
+      .square {
+        flex: 1 0 auto;
+        height: 100%;
+        width: 12.5%;
+        position: relative;
+
+        .coordinate {
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          line-height: 1;
+          font-size: 1.2vw;
+          opacity: 0.5;
+        }
+
+        .figurine {
+          font-family: 'Arial Unicode MS';
+          position: absolute;
+          left: 0;
+          width: 100%;
+          font-size: 4vw;
+          line-height: 1;
+          text-align: center;
+          top: 50%;
+          margin-top: -2vw;
+
+          &.color-white {
+            color: #868f98;
+          }
+
+          &.color-black {
+            color: #30526f;
+          }
+        }
+      }
+
+      &:nth-child(2n+1) .square:nth-child(2n),
+      &:nth-child(2n) .square:nth-child(2n+1) {
+        background: #e0e0e0;
+      }
+    }
+  }
+}
