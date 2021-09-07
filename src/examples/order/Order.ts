@@ -30,9 +30,7 @@ export interface Payment extends Line {
 }
 
 export interface Item extends Line {
-  name: string
-  unitPriceExTax: Big
-  quantity: number
+  amount: Big
 }
 
 export const isPayment = (obj: unknown): obj is Payment =>
@@ -40,11 +38,27 @@ export const isPayment = (obj: unknown): obj is Payment =>
   obj.amount instanceof Big &&
   isPaymentMethod(obj.method)
 
-export const isItem = (obj: unknown): obj is Item =>
-  isObj(obj) &&
+export const isItem = (obj: unknown): obj is Item => !isPayment(obj)
+
+export interface SaleItem extends Item {
+  name: string
+  quantity: number
+}
+
+export const isSaleItem = (obj: unknown): obj is SaleItem =>
+  isObj(obj) && isItem(obj) &&
   typeof obj.name === 'string' &&
-  obj.unitPriceExTax instanceof Big &&
   typeof obj.quantity === 'number'
+
+export interface TaxItem extends Item {
+  saleItemID: number
+  isFraction: boolean
+}
+
+export const isTaxItem = (obj: unknown): obj is TaxItem =>
+  isObj(obj) && isItem(obj) &&
+  typeof obj.saleItemID === 'number' &&
+  typeof obj.isFraction === 'boolean'
 
 export interface Order {
   currencyCode: Currency

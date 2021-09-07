@@ -1,11 +1,12 @@
 import { Big } from 'big.js'
 
 import { EventBase, createBuilder } from '../../esp'
-import { AnyArgs } from '../../esp/Builder'
-import { Currency, Item, Order, Payment, currencyNames, isItem } from './Order'
-import { nextID, orderBalance, orderItems, orderPayments } from './orderDerivation'
+import { AnyArgs, EventClassBuilder } from '../../esp/Builder'
+import { replaceAtIndex } from '../../utilities'
+import { Currency, Item, Order, Payment, SaleItem, TaxItem, currencyNames, isItem } from './Order'
+import { nextID, orderBalance, orderItems, orderPayments, orderSaleItems } from './orderDerivation'
 
-type AddItemEvent = EventBase<'addItem', {
+type AddSaleItemEvent = EventBase<'addItem', {
   name: string
   price: number
   quantity: number
@@ -25,11 +26,11 @@ type ChangeQuantityEvent = EventBase<'changeQuantity', {
   quantity: number
 }>
 
-interface ItemTaxEvent extends AnyArgs {
+type SingleItemTaxEvent = EventBase<'singleItemTax', {
   itemID: number
-  amount: string
-  isPercentage: boolean
-}
+  amount: number
+  isFraction: boolean
+}>
 
 const AVAILABLE_METHODS: Record<string, string> = {
   'PayPal':      'paypal.hosted',
@@ -56,29 +57,30 @@ export const createOrderBuilder = (order: Partial<Order> = {}) => createBuilder(
     }
 
     /**
-     * Line items
+     * Sale items
      */
-    const items = orderItems(order)
-    const nextItemID = nextID(items)
 
-    const addItemEvent = add<AddItemEvent>('addItem', 'Add item').handle(({event: {args}, reject}) => {
+    const saleItems  = orderSaleItems(order)
+    const nextItemID = nextID(orderItems(order))
+
+    const addItemEvent = add<AddSaleItemEvent>('addItem', 'Add item').handle(({event: {args}, reject}) => {
       const name = args.name.trim()
       if (name === '') {
         return reject('Name should not be blank')
       }
 
-      const item: Item = {
+      const item: SaleItem = {
         id:             nextItemID,
         name:           name,
         quantity:       args.quantity,
-        unitPriceExTax: new Big(args.price)
+        amount: new Big(args.price)
       }
 
       return {...order, lines: [...order.lines, item]}
     })
 
     addItemEvent.addArgument('name', 'Item name', `Item #${nextItemID}`)
-    addItemEvent.addArgument('price', 'Price', 1.23)
+    addItemEvent.addArgument('price', 'Price', 9.0909)
     addItemEvent.addArgument('quantity', 'Quantity', 1)
 
     /**
@@ -87,7 +89,7 @@ export const createOrderBuilder = (order: Partial<Order> = {}) => createBuilder(
 
     const balance = orderBalance(order)
     if (!balance.eq(0)) {
-      const makePaymentEvent = add<MakePaymentEvent>('makePayment', 'Pay').handle(({event: {args}, reject}) => {
+      const makePaymentEvent = add<MakePaymentEvent>('makePayment', 'Pay').handle(({event: {args}}) => {
         const [providerId, methodId] = args.method.split('.', 2)
 
         const payment: Payment = {
@@ -105,7 +107,7 @@ export const createOrderBuilder = (order: Partial<Order> = {}) => createBuilder(
       makePaymentEvent.addArgument('amount', 'Amount', balance.toNumber())
     }
 
-    if (items[0]) {
+    if (saleItems[0]) {
       /**
        * Change line quantity
        */
@@ -117,20 +119,43 @@ export const createOrderBuilder = (order: Partial<Order> = {}) => createBuilder(
             return reject('Invalid item ID')
           }
 
-          const item: Item = {
-            ...order.lines[itemIndex] as Item,
+          const item: SaleItem = {
+            ...order.lines[itemIndex] as SaleItem,
             quantity: args.quantity
           }
 
-          return {...order, lines: [...order.lines.slice(0, itemIndex), item, ...order.lines.slice(itemIndex+1)]}
+          return {...order, lines: replaceAtIndex(order.lines, itemIndex, item)}
         })
 
-      const lastItem = items[items.length - 1]
+      const lastSaleItem = saleItems[saleItems.length - 1]
 
-      changeQuantityEvent.addArgument('itemID', 'Item', lastItem.id).options(
-        items.map(item => ({displayName: `#${item.id}. ${item.name}`, value: item.id}))
-      )
-      changeQuantityEvent.addArgument('quantity', 'Quantity', lastItem.quantity)
+      const addSaleItemArgument = <T extends EventBase<string, {itemID: number}>>(builder: EventClassBuilder<Order, T>) =>
+        builder.addArgument('itemID', 'Item', lastSaleItem.id).options(
+          saleItems.map(item => ({displayName: `#${item.id}. ${item.name}`, value: item.id}))
+        )
+
+      addSaleItemArgument(changeQuantityEvent)
+      changeQuantityEvent.addArgument('quantity', 'Quantity', lastSaleItem.quantity)
+
+      /**
+       * Flat rate tax
+       */
+
+      const singleItemTaxEvent = add<SingleItemTaxEvent>('singleItemTax', 'Tax single item')
+        .handle(({event: {args: {amount, isFraction, itemID}}}) => {
+          const item: TaxItem = {
+            id:         nextItemID,
+            saleItemID: itemID,
+            amount:     new Big(amount),
+            isFraction
+          }
+
+          return {...order, lines: [...order.lines, item]}
+        })
+
+      addSaleItemArgument(singleItemTaxEvent)
+      singleItemTaxEvent.addArgument('amount', 'Amount', 0.1)
+      singleItemTaxEvent.addArgument('isFraction', 'Fractional', true)
     }
   }
 )

@@ -1,13 +1,13 @@
 import Big from 'big.js'
 import React, { FC, useMemo } from 'react'
-import { Item, Order, Payment, isItem, isPayment } from './Order'
+import { Item, Order, Payment, isItem, isPayment, isSaleItem, isTaxItem } from './Order'
 import {
   orderBalance,
   orderItemSubtotal,
   orderItems,
   orderItemsTotal,
   orderPayments,
-  orderPaymentsTotal
+  orderPaymentsTotal, orderTaxItems
 } from './orderDerivation'
 
 type MoneyFormatter = (num: Big) => string
@@ -48,6 +48,7 @@ const SummaryView: FC<{order: Order, format: MoneyFormatter}> = ({order, format}
 
   const items    = useMemo(() => orderItems(order), [order])
   const payments = useMemo(() => orderPayments(order), [order])
+  const taxItems = useMemo(() => orderTaxItems(order), [order])
 
   const itemsTotal    = useMemo(() => orderItemsTotal(items), [items])
   const paymentsTotal = useMemo(() => orderPaymentsTotal(payments), [payments])
@@ -62,6 +63,12 @@ const SummaryView: FC<{order: Order, format: MoneyFormatter}> = ({order, format}
           <th className="text-end">Items total</th>
           <td className="text-end">{format(itemsTotal)}</td>
         </tr>
+        {taxItems[0] &&
+          <tr className="small">
+            <th className="text-end text-muted">Includes tax</th>
+            <td className="text-end">{format(orderItemsTotal(taxItems, items))}</td>
+          </tr>
+        }
         <tr>
           <th className="text-end">Payments total</th>
           <td className="text-end">{format(paymentsTotal)}</td>
@@ -92,7 +99,7 @@ const PaymentsView: FC<{ payments: Payment[], format: MoneyFormatter}> = ({payme
       <tbody>
         {payments.map(({amount, id, method: {methodId, providerId}}) => (
           <tr key={id}>
-            <td className="muted text-end">{id}</td>
+            <td className="text-end">{id}</td>
             <td>{methodId} <span className="text-muted">({providerId})</span></td>
             <td className="text-end">{format(amount)}</td>
           </tr>
@@ -100,7 +107,8 @@ const PaymentsView: FC<{ payments: Payment[], format: MoneyFormatter}> = ({payme
       </tbody>
       <tfoot>
         <tr>
-          <th colSpan={2} className="text-end">Payments subtotal</th>
+          <td/>
+          <th className="text-end">Payments subtotal</th>
           <th className="text-end">{format(orderPaymentsTotal(payments))}</th>
         </tr>
       </tfoot>
@@ -116,6 +124,8 @@ const ItemsView: FC<{ items: Item[], format: MoneyFormatter }> = ({items, format
     return null
   }
 
+  const saleItems = useMemo(() => items.filter(isSaleItem), [items])
+
   return (
     <table className="table table-striped table-sm monetary">
       <thead>
@@ -128,19 +138,33 @@ const ItemsView: FC<{ items: Item[], format: MoneyFormatter }> = ({items, format
         </tr>
       </thead>
       <tbody>
-        {items.map((item) => (
-          <tr key={item.id}>
-            <td className="muted text-end">{item.id}</td>
-            <td>{item.name}</td>
-            <td className="text-end">{format(item.unitPriceExTax)}</td>
-            <td className="text-end">{item.quantity}</td>
-            <td className="text-end">{format(orderItemSubtotal(item))}</td>
-          </tr>
-        ))}
+        {saleItems.map((item) => {
+          const taxItems = items.filter(i => isTaxItem(i) && i.saleItemID === item.id)
+
+          return (
+            <React.Fragment key={item.id}>
+              <tr>
+                <td className="text-end">{item.id}</td>
+                <td>{item.name}</td>
+                <td className="text-end">{format(item.amount)}</td>
+                <td className="text-end">{item.quantity}</td>
+                <td className="text-end">{format(orderItemSubtotal(item, items))}</td>
+              </tr>
+              {taxItems.map(taxItem => (
+                <tr className="small" key={taxItem.id}>
+                  <td className="text-end">{taxItem.id}</td>
+                  <td className="text-end text-muted" colSpan={3}>Tax</td>
+                  <td className="text-end">{format(orderItemSubtotal(taxItem, items))}</td>
+                </tr>
+              ))}
+            </React.Fragment>
+          )
+        })}
       </tbody>
       <tfoot>
         <tr>
-          <th colSpan={4} className="text-end">Items total</th>
+          <td/>
+          <th colSpan={3} className="text-end">Items total</th>
           <th className="text-end">{format(orderItemsTotal(items))}</th>
         </tr>
       </tfoot>

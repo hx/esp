@@ -1,7 +1,8 @@
 .order-view {
   table.monetary {
     tr > :first-child {
-      width: 2rem
+      width: 2rem;
+      opacity: 0.5;
     }
   }
 }

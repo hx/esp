@@ -8,3 +8,6 @@ export const mapToObj = <K extends keyof never, V, I>(
 ): Record<K, V> => Object.fromEntries(array.map(callback)) as Record<K, V>
 
 export const unique = <T>(value: T, index: keyof T[], self: T[]): boolean => self.indexOf(value) === index
+
+export const replaceAtIndex = <T>(arr: T[], index: number, ...items: T[]): T[] =>
+  [...arr.slice(0, index), ...items, ...arr.slice(index+1)]

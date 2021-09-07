@@ -13,6 +13,10 @@ export const ArgumentView: FC<Props> = (props) => {
   const {arg} = props
   const id = useMemo(() => `argumentView${argID++}`, [])
 
+  if (typeof arg.default === 'boolean') {
+    return <Checkbox {...props} id={id}/>
+  }
+
   return (
     <div className="argument my-3">
       <label htmlFor={id} className="form-label">{arg.displayName}</label>
@@ -25,6 +29,17 @@ export const ArgumentView: FC<Props> = (props) => {
 }
 
 type ArgProps = Props & {id: string}
+
+const Checkbox: FC<ArgProps> = ({arg, onChange, id, value}) => {
+  const change = useCallback(e => onChange({[arg.name]: e.target.checked}), [onChange])
+
+  return (
+    <div className="form-check">
+      <input className="form-check-input" type="checkbox" id={id} defaultChecked={Boolean(value)} onChange={change}/>
+      <label className="form-check-label" htmlFor={id}>{arg.displayName}</label>
+    </div>
+  )
+}
 
 const Text: FC<ArgProps> = ({arg, onChange, id, value}) => {
   const ref = useRef<HTMLInputElement>(null)
