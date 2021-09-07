@@ -7,7 +7,7 @@ import { OrderView } from './examples/order/OrderView'
 
 const options = {
   chess: () => boot(createChessGameBuilder(), GameView),
-  order: () => boot(createOrderBuilder({currencyCode: 'AUD', lines: []}), OrderView)
+  order: () => boot(createOrderBuilder({currencyCode: 'AUD'}), OrderView)
 }
 
 // options.chess()
