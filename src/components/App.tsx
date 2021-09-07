@@ -60,7 +60,7 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
       </div>
       <div className="row">
         <div className="left col-6">
-          <EventsView events={events} undone={undone}/>
+          <EventsView events={events} undone={undone} undo={undo} redo={redo}/>
           <EventClassesView
             errors={errors}
             classes={eventClasses}
