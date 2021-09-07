@@ -20,12 +20,12 @@ export const SelectedEventClassView: FC<Props> = ({
   errors
 }) => {
   const [input, setInput] = useState(mapToObj(args, arg => {
+    if (arg.default !== undefined) {
+      return [arg.name, arg.default]
+    }
     const firstOption = arg.options?.[0]?.value
     if (firstOption !== undefined) {
       return [arg.name, firstOption]
-    }
-    if (arg.default !== undefined) {
-      return [arg.name, arg.default]
     }
     return [arg.name, '']
   }))

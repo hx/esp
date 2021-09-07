@@ -74,9 +74,9 @@ const createEventClassCreator = <T>(state: BuilderState<T>, eventClasses: EventC
         if (result === undefined) {
           const argumentClass = eventClass.arguments.find(a => a.name === n)
           if (argumentClass) {
-            result = argumentClass.options?.[0]?.value
+            result = argumentClass.default
             if (result === undefined) {
-              result = argumentClass.default
+              result = argumentClass.options?.[0]?.value
             }
           }
         }
