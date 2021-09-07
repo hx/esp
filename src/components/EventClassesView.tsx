@@ -18,7 +18,7 @@ export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, u
   const [selectedClassName, setSelectedClassName] = useState('')
 
   const onSelect = setSelectedClassName
-  const onCancel = () => setSelectedClassName('')
+  const onCancel = useCallback(() => setSelectedClassName(''), [])
 
   const selectedClass = classes.find(c => c.name === selectedClassName)
 

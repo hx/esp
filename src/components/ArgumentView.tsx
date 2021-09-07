@@ -43,7 +43,7 @@ const Checkbox: FC<ArgProps> = ({arg, onChange, id, value}) => {
 
 const Text: FC<ArgProps> = ({arg, onChange, id, value}) => {
   const ref = useRef<HTMLInputElement>(null)
-  const focus = () => ref.current?.select()
+  const focus = useCallback(() => ref.current?.select(), [ref])
 
   const [text, setText] = useState(String(value))
   const change = useCallback(e => {

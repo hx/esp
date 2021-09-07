@@ -65,7 +65,7 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
   return (
     <div className="container-fluid">
       <div className="masthead row">
-        <h1>Event source model prototyping</h1>
+        <h1>Event source model prototyping.</h1>
       </div>
       <div className="row">
         <div className="left col-6">
