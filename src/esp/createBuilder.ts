@@ -30,10 +30,17 @@ const addEventToState = <T>(state: BuilderState<T>, event: EventBase): BuilderSt
 
 const raiseEvent = <T>(state: BuilderState<T>, event: EventBase): Builder<T> => {
   const newState = {...state, eventHints: {}}
+  const errors: string[] = []
+  const reject = (reason: string) => {
+    errors.push(reason)
+    event.errors = errors
+    return state.model
+  }
+  delete event.errors
   state.eventClasses
     .find(c => c.name === event.name)?.handlers
-    ?.forEach(h => newState.model = h({event, model: newState.model}))
-  return makeBuilderFromState(newState)
+    ?.forEach(h => newState.model = h({event, reject, model: newState.model}))
+  return makeBuilderFromState(errors.length === 0 ? newState : state)
 }
 
 const hintEvent = <T>(state: BuilderState<T>, event: EventBase): Builder<T> =>

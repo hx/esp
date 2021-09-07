@@ -3,6 +3,6 @@ import { EventBase } from '../esp'
 import { EventView } from './EventView'
 
 export const EventsView: FC<{ events: EventBase[] }> = ({events}) =>
-  <div className="eventList">
+  <div className="event-list">
     {events.map((event, eventIndex) => <EventView key={eventIndex} index={eventIndex} event={event}/>)}
   </div>

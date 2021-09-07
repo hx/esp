@@ -13,9 +13,15 @@ interface Props<T> {
 export const App = <T extends unknown>({builder: initialBuilder, view: View}: Props<T>) => {
   const [builder, setBuilder] = useState(initialBuilder)
   const [events, setEvents]   = useState<EventBase[]>([])
+  const [errors, setErrors]   = useState<Record<string, string[]>>({})
 
   const onEvent = useCallback((event: EventBase) => {
     const newBuilder = builder.raiseEvent(event)
+    if (event.errors) {
+      setErrors({[event.name]: event.errors})
+      return
+    }
+    setErrors({})
     setBuilder(newBuilder)
     setEvents([...events, event])
   }, [builder, events])
@@ -35,7 +41,13 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
       <div className="row">
         <div className="left col-6">
           <EventsView events={events}/>
-          <EventClassesView classes={eventClasses} key={events.length} onEvent={onEvent} onHint={onHint}/>
+          <EventClassesView
+            errors={errors}
+            classes={eventClasses}
+            key={events.length}
+            onEvent={onEvent}
+            onHint={onHint}
+          />
         </div>
         <div className="right col-6">
           <View model={model}/>

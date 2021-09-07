@@ -6,24 +6,27 @@ interface Props {
   classes: EventClass[]
   onEvent: (event: EventBase) => void
   onHint: (event: EventBase) => void
+  errors: Record<string, string[]>
 }
 
-export const EventClassesView: FC<Props> = ({classes, onEvent, onHint}) => {
+export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors}) => {
   const [selectedClassName, setSelectedClassName] = useState('')
 
   const onSelect = setSelectedClassName
   const onCancel = () => setSelectedClassName('')
-  const onCommit = useCallback((event: EventBase) => {
-    onCancel()
-    onEvent(event)
-  }, [onEvent])
 
   const selectedClass = classes.find(c => c.name === selectedClassName)
 
   return (
     <>
       {selectedClass &&
-      <SelectedEventClassView eventClass={selectedClass} onCancel={onCancel} onCommit={onCommit} onHint={onHint}/>}
+      <SelectedEventClassView
+        eventClass={selectedClass}
+        errors={errors[selectedClassName]}
+        onCancel={onCancel}
+        onCommit={onEvent}
+        onHint={onHint}
+      />}
       <Buttons classes={classes} onSelect={onSelect}/>
     </>
   )

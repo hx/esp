@@ -4,6 +4,7 @@ export interface EventBase<name extends string = string, Args extends AnyArgs = 
   name: name
   args: Args
   description?: string
+  errors?: string[]
 }
 
 export interface Option<T> {
@@ -18,6 +19,7 @@ interface ArgumentClassBuilder<EventType extends EventBase, Field extends keyof 
 export interface EventHandlerPayload<T, EventType extends EventBase> {
   event: EventType
   model: T
+  reject(reason: string): T
 }
 
 export interface EventHandler<T = any, EventType extends EventBase = EventBase> {

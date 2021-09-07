@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import React, { FC, useCallback, useState } from 'react'
 import { EventBase, EventClass } from '../esp/Builder'
 import { mapToObj } from '../utilities'
@@ -8,13 +9,15 @@ interface Props {
   onCancel: () => void
   onCommit: (event: EventBase) => void
   onHint: (event: EventBase) => void
+  errors?: string[]
 }
 
 export const SelectedEventClassView: FC<Props> = ({
   eventClass: {name, arguments: args, displayName},
   onCancel,
   onCommit,
-  onHint
+  onHint,
+  errors
 }) => {
   const [input, setInput] = useState(mapToObj(args, arg => {
     const firstOption = arg.options?.[0]
@@ -43,7 +46,7 @@ export const SelectedEventClassView: FC<Props> = ({
   }
 
   return (
-    <div className="selected-event-class card my-2">
+    <div className={classNames('selected-event-class card my-2', {'border-danger': errors !== undefined})}>
       <div className="card-body">
         <div className="card-title">
           <h3>{displayName}</h3>
@@ -61,6 +64,11 @@ export const SelectedEventClassView: FC<Props> = ({
           </div>
         </div>
       </div>
+      {errors &&
+      <div className="card-footer bg-danger text-light">
+        {errors.map((err, i) => <div className="small" key={i}>{err}</div>)}
+      </div>
+      }
     </div>
   )
 }
