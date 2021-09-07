@@ -30,7 +30,9 @@ const addEventToState = <T>(state: BuilderState<T>, event: EventBase): BuilderSt
 
 const raiseEvent = <T>(state: BuilderState<T>, event: EventBase): Builder<T> => {
   const newState = {...state, eventHints: {}}
-  state.eventClasses.find(c => c.name === event.name)?.handlers?.forEach(h => newState.model = h(event, newState.model))
+  state.eventClasses
+    .find(c => c.name === event.name)?.handlers
+    ?.forEach(h => newState.model = h({event, model: newState.model}))
   return makeBuilderFromState(newState)
 }
 

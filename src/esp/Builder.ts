@@ -15,8 +15,13 @@ interface ArgumentClassBuilder<EventType extends EventBase, Field extends keyof 
   options(options: Array<Option<EventType['args'][Field]>>): void
 }
 
+export interface EventHandlerPayload<T, EventType extends EventBase> {
+  event: EventType
+  model: T
+}
+
 export interface EventHandler<T = any, EventType extends EventBase = EventBase> {
-  (event: EventType, model?: T): T
+  (payload: EventHandlerPayload<T, EventType>): T
 }
 
 export interface EventClassBuilder<T, EventType extends EventBase> {

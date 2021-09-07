@@ -27,9 +27,9 @@ export const gameBuilder = createBuilder<Game>({
     const movesByPiece = moves.filter((move, index, self) => self.findIndex(m => m.from === move.from) === index)
 
     if (movesByPiece[0]) {
-      const moveEvent = add<MoveEvent>('move', 'Move').handle(e => {
-        const newGame = play(game, e.args)
-        e.description = describeMove(newGame.playedMoves[newGame.playedMoves.length - 1])
+      const moveEvent = add<MoveEvent>('move', 'Move').handle(({event}) => {
+        const newGame = play(game, event.args)
+        event.description = describeMove(newGame.playedMoves[newGame.playedMoves.length - 1])
         return newGame
       })
 
