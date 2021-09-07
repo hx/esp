@@ -22,7 +22,6 @@ export const SelectedEventClassView: FC<Props> = ({
   }))
 
   const change = useCallback(e => {
-    console.log(e)
     const event = {name, args: {...input, ...e}}
     setInput(event.args)
     onHint(event)
