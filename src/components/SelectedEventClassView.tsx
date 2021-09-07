@@ -20,8 +20,14 @@ export const SelectedEventClassView: FC<Props> = ({
   errors
 }) => {
   const [input, setInput] = useState(mapToObj(args, arg => {
-    const firstOption = arg.options?.[0]
-    return [arg.name, firstOption?.value === undefined ? '' : firstOption.value]
+    const firstOption = arg.options?.[0]?.value
+    if (firstOption !== undefined) {
+      return [arg.name, firstOption]
+    }
+    if (arg.default !== undefined) {
+      return [arg.name, arg.default]
+    }
+    return [arg.name, '']
   }))
 
   const change = useCallback(e => {
@@ -54,7 +60,7 @@ export const SelectedEventClassView: FC<Props> = ({
         <div className="card-text">
           <div className="arguments">
             {args.map(arg =>
-              <ArgumentView arg={arg} key={arg.name} value={String(input[arg.name])} onChange={change}/>
+              <ArgumentView arg={arg} key={arg.name} value={input[arg.name]} onChange={change}/>
             )}
           </div>
           <div className="text-end">

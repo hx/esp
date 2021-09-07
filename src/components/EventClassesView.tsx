@@ -21,6 +21,7 @@ export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors}) 
     <>
       {selectedClass &&
       <SelectedEventClassView
+        key={selectedClassName}
         eventClass={selectedClass}
         errors={errors[selectedClassName]}
         onCancel={onCancel}

@@ -60,8 +60,8 @@ const createEventClassCreator = <T>(state: BuilderState<T>, eventClasses: EventC
     }
     eventClasses.push(eventClass)
     const ret: EventClassBuilder<T, EventType> = {
-      addArgument<Field extends keyof EventType['args']>(name: Field, displayName = String(name)) {
-        const args: ArgumentClass = {name: String(name), displayName}
+      addArgument<Field extends keyof EventType['args']>(name: Field, displayName = String(name), defaultVal?: EventType['args'][Field]) {
+        const args: ArgumentClass = {name: String(name), displayName, default: defaultVal}
         eventClass.arguments.push(args)
 
         return {
@@ -73,9 +73,15 @@ const createEventClassCreator = <T>(state: BuilderState<T>, eventClasses: EventC
       getArgument: <Field extends keyof EventType['args']>(n: Field) => {
         let result: unknown = state.eventHints[name]?.[n as string]
         if (result === undefined) {
-          result = eventClass.arguments.find(a => a.name === n)?.options?.[0]?.value
+          const argumentClass = eventClass.arguments.find(a => a.name === n)
+          if (argumentClass) {
+            result = argumentClass.options?.[0]?.value
+            if (result === undefined) {
+              result = argumentClass.default
+            }
+          }
         }
-        return result as EventType['args'][Field]
+        return result as EventType['args'][Field] | undefined
       },
       handle: (handler: EventHandler<T, EventType>) => {
         eventClass.handlers.push(handler as EventHandler)

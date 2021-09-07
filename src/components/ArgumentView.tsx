@@ -1,11 +1,11 @@
-import React, { FC, useCallback, useMemo } from 'react'
-import { ArgumentClass } from '../esp/Builder'
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react'
+import { ArgumentClass, Scalar } from '../esp/Builder'
 
 let argID = 0
 
 interface Props {
   arg: ArgumentClass
-  value: string
+  value: Scalar
   onChange: (newValue: {[key in string]: unknown}) => void
 }
 
@@ -26,18 +26,39 @@ export const ArgumentView: FC<Props> = (props) => {
 
 type ArgProps = Props & {id: string}
 
-const Text: FC<ArgProps> = ({arg, onChange, id}) => {
+const Text: FC<ArgProps> = ({arg, onChange, id, value}) => {
+  const ref = useRef<HTMLInputElement>(null)
+  const focus = () => ref.current?.select()
+
+  const [text, setText] = useState(String(value))
+  const change = useCallback(e => {
+    const newValue = e.target.value
+    if (typeof value !== 'number' || /^-?\d+\.?\d*$/.test(newValue)) {
+      setText(newValue)
+    }
+  }, [value])
+
   const update = useCallback(
-    e => onChange({[arg.name]: e.target.value}),
-    [arg, onChange]
+    () => {
+      let newVal: Scalar = text
+      if (typeof value === 'number') {
+        newVal = +text
+      }
+      onChange({[arg.name]: newVal})
+    },
+    [arg, onChange, text, value]
   )
 
   return (
     <input
+      ref={ref}
       type="text"
       className="form-control"
       id={id}
       onBlur={update}
+      onFocus={focus}
+      value={text}
+      onChange={change}
     />
   )
 }
@@ -52,7 +73,7 @@ const Select: FC<ArgProps> = ({arg, value, onChange, id}) => {
   )
 
   return (
-    <select className="form-select" value={value} onChange={update} id={id}>
+    <select className="form-select" value={String(value)} onChange={update} id={id}>
       {arg.options.map((opt, i) => <option value={String(opt.value)} key={i}>{opt.displayName}</option>)}
     </select>
   )

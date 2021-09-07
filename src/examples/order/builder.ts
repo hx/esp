@@ -1,12 +1,14 @@
 import { Big } from 'big.js'
 
 import { EventBase, createBuilder } from '../../esp'
+import { AnyArgs } from '../../esp/Builder'
 import { Currency, Item, Order, Payment, currencyNames } from './Order'
 import { nextID, orderBalance, orderItems, orderPayments } from './orderDerivation'
 
 type AddItemEvent = EventBase<'addItem', {
   name: string
-  price: string
+  price: number
+  quantity: number
 }>
 
 type SetCurrencyEvent = EventBase<'setCurrency', {
@@ -15,10 +17,14 @@ type SetCurrencyEvent = EventBase<'setCurrency', {
 
 type MakePaymentEvent = EventBase<'makePayment', {
   method: string
-  amount: string
+  amount: number
 }>
 
-const PRICE_PATTERN = /^(\$|-\$?)?\d+(\.\d*)?$/
+interface ItemTaxEvent extends AnyArgs {
+  itemID: number
+  amount: string
+  isPercentage: boolean
+}
 
 const AVAILABLE_METHODS: Record<string, string> = {
   'PayPal':      'paypal.hosted',
@@ -48,44 +54,41 @@ export const orderBuilder = createBuilder<Order>({
     /**
      * Line items
      */
+    const items = orderItems(order)
+    const nextItemID = nextID(items)
 
     const addItemEvent = add<AddItemEvent>('addItem', 'Add item').handle(({event: {args}, reject}) => {
-      if (!PRICE_PATTERN.test(args.price)) {
-        return reject('Price is invalid')
-      }
       const name = args.name.trim()
       if (name === '') {
         return reject('Name should not be blank')
       }
 
       const item: Item = {
-        id:             nextID(orderItems(order)),
+        id:             nextItemID,
         name:           name,
-        quantity:       1,
-        unitPriceExTax: new Big(args.price.replace('$', ''))
+        quantity:       args.quantity,
+        unitPriceExTax: new Big(args.price)
       }
 
       return {...order, lines: [...order.lines, item]}
     })
 
-    addItemEvent.addArgument('name', 'Item name')
-    addItemEvent.addArgument('price', 'Price')
+    addItemEvent.addArgument('name', 'Item name', `Item #${nextItemID}`)
+    addItemEvent.addArgument('price', 'Price', 1.23)
+    addItemEvent.addArgument('quantity', 'Quantity', 1)
 
     /**
      * Payments
      */
 
-    if (!orderBalance(order).eq(0)) {
+    const balance = orderBalance(order)
+    if (!balance.eq(0)) {
       const makePaymentEvent = add<MakePaymentEvent>('makePayment', 'Pay').handle(({event: {args}, reject}) => {
-        if (!PRICE_PATTERN.test(args.amount)) {
-          return reject('Amount is invalid')
-        }
-
         const [providerId, methodId] = args.method.split('.', 2)
 
         const payment: Payment = {
           id:     nextID(orderPayments(order)),
-          amount: new Big(args.amount.replace('$', '')),
+          amount: new Big(args.amount),
           method: {providerId, methodId}
         }
 
@@ -95,7 +98,7 @@ export const orderBuilder = createBuilder<Order>({
       makePaymentEvent.addArgument('method', 'Method').options(
         Object.entries(AVAILABLE_METHODS).map(([name, id]) => ({displayName: name, value: id}))
       )
-      makePaymentEvent.addArgument('amount', 'Amount')
+      makePaymentEvent.addArgument('amount', 'Amount', balance.toNumber())
     }
   }
 })

@@ -1,4 +1,6 @@
-export type AnyArgs = {[x in string]: string | number}
+export type Scalar = string | number | boolean
+
+export type AnyArgs = {[x in string]: Scalar}
 
 export interface EventBase<name extends string = string, Args extends AnyArgs = AnyArgs> {
   name: name
@@ -27,7 +29,7 @@ export interface EventHandler<T = any, EventType extends EventBase = EventBase> 
 }
 
 export interface EventClassBuilder<T, EventType extends EventBase> {
-  addArgument: <Field extends keyof EventType['args']>(name: Field, displayName?: string) =>
+  addArgument: <Field extends keyof EventType['args']>(name: Field, displayName?: string, defaultVal?: EventType['args'][Field]) =>
     ArgumentClassBuilder<EventType, Field>
   getArgument: <Field extends keyof EventType['args']>(name: Field) => EventType['args'][Field] | undefined
   handle: (handler: EventHandler<T, EventType>) => EventClassBuilder<T, EventType>
@@ -47,7 +49,8 @@ export interface BuilderMethods<T> {
 export interface ArgumentClass {
   name: string
   displayName: string
-  options?: Option<string | number>[]
+  options?: Option<Scalar>[]
+  default?: Scalar
 }
 
 export interface EventClass<T = any, EventType extends EventBase = EventBase> {
