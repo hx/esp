@@ -1,5 +1,6 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback, useMemo, useState } from 'react'
 import { Builder, EventBase } from '../esp'
+import { replaceAtIndex } from '../utilities'
 import { EventClassesView } from './EventClassesView'
 import { EventsView } from './EventsView'
 
@@ -11,10 +12,11 @@ interface Props<T> {
 }
 
 export const App = <T extends unknown>({builder: initialBuilder, view: View}: Props<T>) => {
-  const [builder, setBuilder] = useState(initialBuilder)
-  const [events, setEvents]   = useState<EventBase[]>([])
-  const [undone, setUndone]   = useState<EventBase[]>([])
-  const [errors, setErrors]   = useState<Record<string, string[]>>({})
+  const [builders, setBuilders] = useState([initialBuilder])
+  const [events, setEvents]     = useState<EventBase[]>([])
+  const [undone, setUndone]     = useState<EventBase[]>([])
+  const [errors, setErrors]     = useState<Record<string, string[]>>({})
+  const builder                 = useMemo(() => builders[events.length], [builders, events])
 
   const onEvent = useCallback((event: EventBase) => {
     const newBuilder = builder.raiseEvent(event)
@@ -23,14 +25,14 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
       return
     }
     setErrors({})
-    setBuilder(newBuilder)
+    setBuilders([...builders.slice(0, events.length+1), newBuilder])
     setEvents([...events, event])
     setUndone([])
   }, [builder, events])
 
   const onHint = useCallback((event: EventBase) => {
     const newBuilder = builder.hintEvent(event)
-    setBuilder(newBuilder)
+    setBuilders(replaceAtIndex(builders, builders.length-1, newBuilder))
   }, [builder])
 
   const {model, eventClasses} = builder
@@ -38,29 +40,18 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
   const undo = useCallback((steps = 1) => {
     const remaining = events.slice(0, -steps)
     const undone    = events.slice(-steps)
-    if (!undone[0]) {
-      return
-    }
-
-    // Undo by replaying all but the undone events
-    let builder = initialBuilder
-    remaining.forEach(e => builder = builder.raiseEvent(e))
-    setEvents(remaining)
-    setBuilder(builder)
     setErrors({})
+    setEvents(remaining)
     setUndone(others => [...undone, ...others])
-  }, [initialBuilder, events])
+  }, [events])
 
   const redo = useCallback((steps = 1) => {
     const redone = undone.slice(0, steps)
     const remaining = undone.slice(steps)
-    let newBuilder = builder
-    redone.forEach(e => newBuilder = newBuilder.raiseEvent(e))
     setErrors({})
-    setBuilder(newBuilder)
     setEvents([...events, ...redone])
     setUndone(remaining)
-  }, [undone, builder, events])
+  }, [undone, events])
 
   return (
     <div className="container-fluid">
