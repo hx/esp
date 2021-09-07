@@ -19,7 +19,7 @@ const describePiece = (move: Move) => {
   return `${colors[color]} ${pieces[type].name} (${coordinate(move.from)})`
 }
 
-export const gameBuilder = () => createBuilder(newGame(), (game, add) => {
+export const createChessGameBuilder = () => createBuilder(newGame(), (game, add) => {
   const position     = game.positions[game.positions.length - 1]
   const moves        = legalMoves(position)
   const movesByPiece = moves.filter((move, index, self) => self.findIndex(m => m.from === move.from) === index)

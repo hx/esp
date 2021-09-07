@@ -32,11 +32,7 @@ const AVAILABLE_METHODS: Record<string, string> = {
   'Cash':        'bigcommerce.cash'
 }
 
-export const orderBuilder = () => createBuilder<Order>(
-  {
-    currencyCode: 'AUD',
-    lines: []
-  },
+export const createOrderBuilder = (order: Order) => createBuilder(order,
   (order, add) => {
     /**
      * Currency
