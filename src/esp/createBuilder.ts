@@ -3,7 +3,6 @@ import {
   AnyArgs,
   ArgumentClass,
   Builder,
-  BuilderMethods,
   EventBase,
   EventClass,
   EventClassBuilder,
@@ -97,12 +96,12 @@ const buildEventClasses = <T>(state: BuilderState<T>): EventClass[] => {
   return result
 }
 
-export const createBuilder = <T>(props: BuilderMethods<T>): Builder<T> =>
+export const createBuilder = <T>(model: T, classBuilder: EventClassesBuilder<T>): Builder<T> =>
   makeBuilderFromState({
-    model:               props.seed(),
+    model,
     eventHints:          {},
     eventClasses:        [],
-    eventClassesBuilder: props.eventClasses
+    eventClassesBuilder: classBuilder
   })
 
 const makeBuilderFromState = <T>(state: BuilderState<T>): Builder<T> => {

@@ -32,12 +32,12 @@ const AVAILABLE_METHODS: Record<string, string> = {
   'Cash':        'bigcommerce.cash'
 }
 
-export const orderBuilder = createBuilder<Order>({
-  seed: () => ({
+export const orderBuilder = () => createBuilder<Order>(
+  {
     currencyCode: 'AUD',
     lines: []
-  }),
-  eventClasses: (order, add) => {
+  },
+  (order, add) => {
     /**
      * Currency
      */
@@ -101,4 +101,4 @@ export const orderBuilder = createBuilder<Order>({
       makePaymentEvent.addArgument('amount', 'Amount', balance.toNumber())
     }
   }
-})
+)

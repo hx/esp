@@ -41,11 +41,6 @@ export interface EventClassCreator<T> {
 
 export type EventClassesBuilder<T> = (model: T, addEventClass: EventClassCreator<T>) => void
 
-export interface BuilderMethods<T> {
-  seed: () => T
-  eventClasses: EventClassesBuilder<T>
-}
-
 export interface ArgumentClass {
   name: string
   displayName: string
