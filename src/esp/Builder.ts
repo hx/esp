@@ -1,27 +1,32 @@
-export type EventBase = {[x in string]: unknown} & {name: string}
+export type AnyArgs = {[x in string]: string | number}
+
+export interface EventBase<name extends string = string, Args extends AnyArgs = AnyArgs> {
+  name: name
+  args: Args
+}
 
 export interface Option<T> {
   displayName: string
   value: T
 }
 
-interface ArgumentClassBuilder<EventFields extends EventBase, Field extends keyof EventFields> {
-  options(options: Array<Option<EventFields[Field]>>): void
+interface ArgumentClassBuilder<EventType extends EventBase, Field extends keyof EventType['args']> {
+  options(options: Array<Option<EventType['args'][Field]>>): void
 }
 
-export interface EventHandler<T = any, EventFields extends EventBase = EventBase> {
-  (event: EventFields, model?: T): T
+export interface EventHandler<T = any, EventType extends EventBase = EventBase> {
+  (event: EventType, model?: T): T
 }
 
-export interface EventClassBuilder<T, EventFields extends EventBase> {
-  addArgument: <Field extends keyof EventFields>(name: Field, displayName?: string) =>
-    ArgumentClassBuilder<EventFields, Field>
-  getArgument: <Field extends keyof EventFields>(name: Field) => EventFields[Field] | undefined
-  handle: (handler: EventHandler<T, EventFields>) => EventClassBuilder<T, EventFields>
+export interface EventClassBuilder<T, EventType extends EventBase> {
+  addArgument: <Field extends keyof EventType['args']>(name: Field, displayName?: string) =>
+    ArgumentClassBuilder<EventType, Field>
+  getArgument: <Field extends keyof EventType['args']>(name: Field) => EventType['args'][Field] | undefined
+  handle: (handler: EventHandler<T, EventType>) => EventClassBuilder<T, EventType>
 }
 
 export interface EventClassCreator<T> {
-  <EventFields extends EventBase>(name: EventFields['name'], displayName?: string): EventClassBuilder<T, EventFields>
+  <EventType extends EventBase>(name: EventType['name'], displayName?: string): EventClassBuilder<T, EventType>
 }
 
 export type EventClassesBuilder<T> = (model: T, addEventClass: EventClassCreator<T>) => void
@@ -34,14 +39,14 @@ export interface BuilderMethods<T> {
 export interface ArgumentClass {
   name: string
   displayName: string
-  options?: Option<unknown>[]
+  options?: Option<string | number>[]
 }
 
-export interface EventClass<T = any, EventFields extends EventBase = EventBase> {
+export interface EventClass<T = any, EventType extends EventBase = EventBase> {
   name: string
   displayName: string
   arguments: ArgumentClass[]
-  handlers: EventHandler<T, EventFields>[]
+  handlers: EventHandler<T, EventType>[]
 }
 
 export interface Builder<T> {

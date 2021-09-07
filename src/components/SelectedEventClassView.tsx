@@ -23,12 +23,12 @@ export const SelectedEventClassView: FC<Props> = ({
 
   const change = useCallback(e => {
     console.log(e)
-    const event = {name, ...input, ...e}
-    setInput(event)
+    const event = {name, args: {...input, ...e}}
+    setInput(event.args)
     onHint(event)
   }, [input])
 
-  const commit = useCallback(() => onCommit({name, ...input}), [input])
+  const commit = useCallback(() => onCommit({name, args: input}), [input])
 
   const revisedInput: typeof input = {}
   args.filter(a => a.options).forEach(arg => {

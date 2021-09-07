@@ -1,5 +1,6 @@
 import { mapToObj } from '../utilities'
 import {
+  AnyArgs,
   ArgumentClass,
   Builder,
   BuilderMethods,
@@ -14,7 +15,7 @@ import {
 
 interface BuilderState<T> {
   model: T
-  eventHints: Record<string, EventBase>
+  eventHints: Record<string, AnyArgs>
   eventClasses: EventClass[]
   eventClassesBuilder: EventClassesBuilder<T>
 }
@@ -23,7 +24,7 @@ const addEventToState = <T>(state: BuilderState<T>, event: EventBase): BuilderSt
   ...state,
   eventHints: {
     ...state.eventHints,
-    [event.name]: {...state.eventHints[event.name], ...event}
+    [event.name]: {...state.eventHints[event.name], ...event.args}
   }
 })
 
@@ -39,7 +40,7 @@ const hintEvent = <T>(state: BuilderState<T>, event: EventBase): Builder<T> =>
 const DuplicateEventClassName = new Error('Duplicate event class name')
 
 const createEventClassCreator = <T>(state: BuilderState<T>, eventClasses: EventClass<T>[]): EventClassCreator<T> =>
-  <EventFields extends EventBase>(name: EventFields['name'], displayName = name) => {
+  <EventType extends EventBase>(name: EventType['name'], displayName = name) => {
     if (eventClasses.find(e => e.name === name)) {
       throw DuplicateEventClassName
     }
@@ -49,25 +50,25 @@ const createEventClassCreator = <T>(state: BuilderState<T>, eventClasses: EventC
       handlers:  []
     }
     eventClasses.push(eventClass)
-    const ret: EventClassBuilder<T, EventFields> = {
-      addArgument<Field extends keyof EventFields>(name: Field, displayName = String(name)) {
+    const ret: EventClassBuilder<T, EventType> = {
+      addArgument<Field extends keyof EventType['args']>(name: Field, displayName = String(name)) {
         const args: ArgumentClass = {name: String(name), displayName}
         eventClass.arguments.push(args)
 
         return {
-          options(options: Array<Option<EventFields[Field]>>) {
+          options(options: Array<Option<EventType['args'][Field]>>) {
             args.options = options
           }
         }
       },
-      getArgument: <Field extends keyof EventFields>(n: Field) => {
-        let result = state.eventHints[name]?.[n as string]
+      getArgument: <Field extends keyof EventType['args']>(n: Field) => {
+        let result: unknown = state.eventHints[name]?.[n as string]
         if (result === undefined) {
           result = eventClass.arguments.find(a => a.name === n)?.options?.[0]?.value
         }
-        return result as EventFields[Field]
+        return result as EventType['args'][Field]
       },
-      handle: (handler: EventHandler<T, EventFields>) => {
+      handle: (handler: EventHandler<T, EventType>) => {
         eventClass.handlers.push(handler as EventHandler)
         return ret
       }
@@ -102,4 +103,13 @@ const makeBuilderFromState = <T>(state: BuilderState<T>): Builder<T> => {
 }
 
 const makeEventHints = (classes: EventClass[]) =>
-  mapToObj(classes, c => [c.name, mapToObj(c.arguments.filter(a => a.options?.[0]), arg => [arg.name, arg.options![0].value]) as EventBase])
+  mapToObj(
+    classes,
+    c => [
+      c.name,
+      mapToObj(
+        c.arguments.filter(a => a.options?.[0]),
+        arg => [arg.name, arg.options![0].value]
+      )
+    ]
+  )

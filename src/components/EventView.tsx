@@ -5,7 +5,7 @@ type Pairs = Array<[string, unknown]>
 
 export const EventView: FC<{ event: EventBase, index: number }> = ({event, index}) => {
   const eventPairs: Pairs = useMemo(
-    () => Object.keys(event).filter(k => k !== 'name').map(k => [k, event[k]]),
+    () => Object.keys(event.args).map(k => [k, event.args[k]]),
     [event]
   )
 

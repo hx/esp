@@ -5,16 +5,13 @@ import { english } from './game/i18n'
 import { legalMoves } from './game/legalMoves'
 import { Move } from './game/Move'
 
-interface MoveEvent extends EventBase {
-  name: 'move'
+type MoveEvent = EventBase<'move', {
   from: Coordinate
   to: Coordinate
   promoteTo?: PieceType
-}
+}>
 
-interface TakeBackEvent extends EventBase {
-  name: 'takeBack'
-}
+type TakeBackEvent = EventBase<'takeBack'>
 
 const describePiece = (move: Move) => {
   const {colors, pieces} = english
@@ -30,7 +27,7 @@ export const gameBuilder = createBuilder<Game>({
     const movesByPiece = moves.filter((move, index, self) => self.findIndex(m => m.from === move.from) === index)
 
     if (movesByPiece[0]) {
-      const moveEvent = add<MoveEvent>('move', 'Move').handle(e => play(game, e))
+      const moveEvent = add<MoveEvent>('move', 'Move').handle(e => play(game, e.args))
 
       moveEvent.addArgument('from', 'Piece').options(
         movesByPiece.map(move => ({displayName: describePiece(move), value: move.from}))

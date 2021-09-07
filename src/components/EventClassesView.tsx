@@ -13,7 +13,7 @@ export const EventClassesView: FC<Props> = ({classes, onEvent, onHint}) => {
 
   const onSelect = setSelectedClassName
   const onCancel = () => setSelectedClassName('')
-  const onCommit = useCallback(event => {
+  const onCommit = useCallback((event: EventBase) => {
     onCancel()
     onEvent(event)
   }, [onEvent])
