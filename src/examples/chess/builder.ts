@@ -3,7 +3,7 @@ import { Game, PieceType, newGame, play, takeBack } from './game'
 import { Coordinate, coordinate } from './game/Coordinate'
 import { english } from './game/i18n'
 import { legalMoves } from './game/legalMoves'
-import { Move } from './game/Move'
+import { Move, describeMove } from './game/Move'
 
 type MoveEvent = EventBase<'move', {
   from: Coordinate
@@ -27,7 +27,11 @@ export const gameBuilder = createBuilder<Game>({
     const movesByPiece = moves.filter((move, index, self) => self.findIndex(m => m.from === move.from) === index)
 
     if (movesByPiece[0]) {
-      const moveEvent = add<MoveEvent>('move', 'Move').handle(e => play(game, e.args))
+      const moveEvent = add<MoveEvent>('move', 'Move').handle(e => {
+        const newGame = play(game, e.args)
+        e.description = describeMove(newGame.playedMoves[newGame.playedMoves.length - 1])
+        return newGame
+      })
 
       moveEvent.addArgument('from', 'Piece').options(
         movesByPiece.map(move => ({displayName: describePiece(move), value: move.from}))

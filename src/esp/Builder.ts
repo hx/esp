@@ -3,6 +3,7 @@ export type AnyArgs = {[x in string]: string | number}
 export interface EventBase<name extends string = string, Args extends AnyArgs = AnyArgs> {
   name: name
   args: Args
+  description?: string
 }
 
 export interface Option<T> {
