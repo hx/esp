@@ -3,7 +3,7 @@ import { Big } from 'big.js'
 import { EventBase, createBuilder } from '../../esp'
 import { EventClassBuilder } from '../../esp/Builder'
 import { replaceAtIndex } from '../../utilities'
-import { Currency, Order, Payment, SaleItem, TaxItem, currencyNames, isItem } from './Order'
+import { Currency, Order, Payment, SaleItem, TaxItem, currencyNames, isItem, isSaleItem } from './Order'
 import { nextID, orderBalance, orderItems, orderPayments, orderSaleItems } from './orderDerivation'
 
 type AddSaleItemEvent = EventBase<'addItem', {
@@ -28,6 +28,12 @@ type ChangeQuantityEvent = EventBase<'changeQuantity', {
 
 type SingleItemTaxEvent = EventBase<'singleItemTax', {
   itemID: number
+  amount: number
+  isFraction: boolean
+}>
+
+type MultiItemTaxEvent = EventBase<'multiItemTax', {
+  itemIDs: string
   amount: number
   isFraction: boolean
 }>
@@ -156,6 +162,36 @@ export const createOrderBuilder = (order: Partial<Order> = {}) => createBuilder(
       addSaleItemArgument(singleItemTaxEvent)
       singleItemTaxEvent.addArgument('amount', 'Amount', 0.1)
       singleItemTaxEvent.addArgument('isFraction', 'Fractional', true)
+
+      if (saleItems[1]) {
+        const multiItemTaxEvent = add<MultiItemTaxEvent>('multiItemTax', 'Tax many items')
+          .handle(({event: {args: {amount, isFraction, itemIDs}}, reject}) => {
+            if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(itemIDs)) {
+              return reject('Item IDs should be comma-separated integers')
+            }
+            const ids   = itemIDs.trim().split(/\s*,\s*/).map(Number)
+            const items = orderItems(order)
+            for (const id of ids) {
+              const item = items.find(i => i.id === id)
+              if (!item) {
+                return reject(`Item ${id} not found`)
+              }
+              if (!isSaleItem(item)) {
+                return reject(`Item ${id} is not a sales item`)
+              }
+            }
+            const taxItems: TaxItem[] = ids.map((saleItemID, i) => ({
+              saleItemID, isFraction,
+              id:     nextItemID + i,
+              amount: new Big(amount)
+            }))
+            return {...order, lines: [...order.lines, ...taxItems]}
+          })
+
+        multiItemTaxEvent.addArgument('itemIDs', 'Item IDs', saleItems.map(i => i.id).join(', '))
+        multiItemTaxEvent.addArgument('amount', 'Amount', 0.1)
+        multiItemTaxEvent.addArgument('isFraction', 'Fractional', true)
+      }
     }
   }
 )

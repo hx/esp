@@ -55,6 +55,7 @@ const SummaryView: FC<{order: Order, format: MoneyFormatter}> = ({order, format}
 
   const balance = useMemo(() => orderBalance(order), [order])
   const style = balance.eq(0) ? 'success' : balance.lt(0) ? 'warning' : 'danger'
+  const status = balance.eq(0) ? 'Paid' : balance.lt(0) ? 'Overpaid' : 'Due'
 
   return (
     <table className="table table-striped table-sm">
@@ -74,7 +75,7 @@ const SummaryView: FC<{order: Order, format: MoneyFormatter}> = ({order, format}
           <td className="text-end">{format(paymentsTotal)}</td>
         </tr>
         <tr className={`text-${style}`}>
-          <th className="text-end">{balance.lt(0) ? 'Overpaid' : 'Due'}</th>
+          <th className="text-end">{status}</th>
           <td className="text-end">{format(balance.abs())}</td>
         </tr>
       </tbody>
