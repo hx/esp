@@ -20,18 +20,20 @@ export const currencyNames: Record<Currency, string> = {
   GBP: 'Pommie pounds'
 }
 
-export interface Payment {
+export interface Line {
+  id: number
+}
+
+export interface Payment extends Line {
   method: PaymentMethod
   amount: Big
 }
 
-export interface Item {
+export interface Item extends Line {
   name: string
   unitPriceExTax: Big
   quantity: number
 }
-
-type Line = Item | Payment
 
 export const isPayment = (obj: unknown): obj is Payment =>
   isObj(obj) &&

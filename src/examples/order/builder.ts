@@ -2,7 +2,7 @@ import { Big } from 'big.js'
 
 import { EventBase, createBuilder } from '../../esp'
 import { Currency, Item, Order, Payment, currencyNames } from './Order'
-import { orderBalance } from './orderDerivation'
+import { nextID, orderBalance, orderItems, orderPayments } from './orderDerivation'
 
 type AddItemEvent = EventBase<'addItem', {
   name: string
@@ -59,6 +59,7 @@ export const orderBuilder = createBuilder<Order>({
       }
 
       const item: Item = {
+        id:             nextID(orderItems(order)),
         name:           name,
         quantity:       1,
         unitPriceExTax: new Big(args.price.replace('$', ''))
@@ -82,7 +83,8 @@ export const orderBuilder = createBuilder<Order>({
 
         const [providerId, methodId] = args.method.split('.', 2)
 
-        const payment: Payment ={
+        const payment: Payment = {
+          id:     nextID(orderPayments(order)),
           amount: new Big(args.amount.replace('$', '')),
           method: {providerId, methodId}
         }

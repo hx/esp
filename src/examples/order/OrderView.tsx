@@ -1,5 +1,4 @@
 import Big from 'big.js'
-import classNames from 'classnames'
 import React, { FC, useMemo } from 'react'
 import { Item, Order, Payment, isItem, isPayment } from './Order'
 import {
@@ -91,11 +90,11 @@ const PaymentsView: FC<{ payments: Payment[], format: MoneyFormatter}> = ({payme
         </tr>
       </thead>
       <tbody>
-        {payments.map((payment, index) => (
-          <tr>
-            <td className="muted text-end">{index + 1}</td>
-            <td>{payment.method.methodId} <span className="text-muted">({payment.method.providerId})</span></td>
-            <td className="text-end">{format(payment.amount)}</td>
+        {payments.map(({amount, id, method: {methodId, providerId}}) => (
+          <tr key={id}>
+            <td className="muted text-end">{id}</td>
+            <td>{methodId} <span className="text-muted">({providerId})</span></td>
+            <td className="text-end">{format(amount)}</td>
           </tr>
         ))}
       </tbody>
@@ -129,9 +128,9 @@ const ItemsView: FC<{ items: Item[], format: MoneyFormatter }> = ({items, format
         </tr>
       </thead>
       <tbody>
-        {items.map((item, index) => (
-          <tr>
-            <td className="muted text-end">{index + 1}</td>
+        {items.map((item) => (
+          <tr key={item.id}>
+            <td className="muted text-end">{item.id}</td>
             <td>{item.name}</td>
             <td className="text-end">{format(item.unitPriceExTax)}</td>
             <td className="text-end">{item.quantity}</td>

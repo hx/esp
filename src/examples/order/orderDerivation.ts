@@ -1,5 +1,5 @@
 import Big from 'big.js'
-import { Item, Order, Payment, isItem, isPayment } from './Order'
+import { Item, Line, Order, Payment, isItem, isPayment } from './Order'
 
 interface Sum {
   (nums: Big[]): Big
@@ -35,3 +35,5 @@ export const orderPaymentsTotal = (payments: Payment[]) => sum(payments, p => p.
 export const orderBalance = (order: Order) =>
   orderItemsTotal(orderItems(order))
     .sub(orderPaymentsTotal(orderPayments(order)))
+
+export const nextID = <T extends Line>(lines: T[]) => lines[0] ? lines[lines.length - 1].id + 1 : 1
