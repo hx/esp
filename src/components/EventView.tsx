@@ -1,11 +1,15 @@
+import classNames from 'classnames'
 import React, { FC, useMemo } from 'react'
 import { EventBase } from '../esp'
 import { AnyArgs } from '../esp/Builder'
 
 type Pairs = Array<[string, unknown]>
 
-export const EventView: FC<{ event: EventBase, index: number }> = ({event: {args, description, name}, index}) =>
-  <div className="event">
+export const EventView: FC<{ event: EventBase, index: number, muted?: boolean }> = ({
+  event: {args, description, name},
+  index, muted
+}) =>
+  <div className={classNames('event', {'opacity-25': muted})}>
     <span className="index badge bg-light text-secondary">{index + 1}</span>{' '}
     <span className="event-name badge bg-primary">{name}</span>
     <div className="arguments d-inline">

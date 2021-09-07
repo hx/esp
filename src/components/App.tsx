@@ -60,9 +60,7 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
       </div>
       <div className="row">
         <div className="left col-6">
-          <EventsView events={events}/>
-          {undone[0] &&
-          <EventsView events={undone} muted/>}
+          <EventsView events={events} undone={undone}/>
           <EventClassesView
             errors={errors}
             classes={eventClasses}
