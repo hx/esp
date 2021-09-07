@@ -13,6 +13,7 @@ interface Props<T> {
 export const App = <T extends unknown>({builder: initialBuilder, view: View}: Props<T>) => {
   const [builder, setBuilder] = useState(initialBuilder)
   const [events, setEvents]   = useState<EventBase[]>([])
+  const [undone, setUndone]   = useState<EventBase[]>([])
   const [errors, setErrors]   = useState<Record<string, string[]>>({})
 
   const onEvent = useCallback((event: EventBase) => {
@@ -24,6 +25,7 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
     setErrors({})
     setBuilder(newBuilder)
     setEvents([...events, event])
+    setUndone([])
   }, [builder, events])
 
   const onHint = useCallback((event: EventBase) => {
@@ -34,13 +36,31 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
   const {model, eventClasses} = builder
 
   const undo = useCallback((steps = 1) => {
-    const newEvents = events.slice(0, -steps)
+    const remaining = events.slice(0, -steps)
+    const undone    = events.slice(-steps)
+    if (!undone[0]) {
+      return
+    }
+
+    // Undo by replaying all but the undone events
     let builder = initialBuilder
-    newEvents.forEach(e => builder = builder.raiseEvent(e))
-    setEvents(newEvents)
+    remaining.forEach(e => builder = builder.raiseEvent(e))
+    setEvents(remaining)
     setBuilder(builder)
     setErrors({})
+    setUndone(others => [...undone, ...others])
   }, [initialBuilder, events])
+
+  const redo = useCallback((steps = 1) => {
+    const redone = undone.slice(0, steps)
+    const remaining = undone.slice(steps)
+    let newBuilder = builder
+    redone.forEach(e => newBuilder = newBuilder.raiseEvent(e))
+    setErrors({})
+    setBuilder(newBuilder)
+    setEvents([...events, ...redone])
+    setUndone(remaining)
+  }, [undone, builder, events])
 
   return (
     <div className="container-fluid">
@@ -50,6 +70,8 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
       <div className="row">
         <div className="left col-6">
           <EventsView events={events}/>
+          {undone[0] &&
+          <EventsView events={undone} muted/>}
           <EventClassesView
             errors={errors}
             classes={eventClasses}
@@ -57,6 +79,7 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
             onEvent={onEvent}
             onHint={onHint}
             undo={events[0] && undo}
+            redo={undone[0] && redo}
           />
         </div>
         <div className="right col-6">

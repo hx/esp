@@ -2,15 +2,19 @@ import React, { FC, useCallback, useMemo, useState } from 'react'
 import { EventBase, EventClass } from '../esp/Builder'
 import { SelectedEventClassView } from './SelectedEventClassView'
 
-interface Props {
+interface UndoRedo {
+  undo?: () => void
+  redo?: () => void
+}
+
+interface Props extends UndoRedo {
   classes: EventClass[]
   onEvent: (event: EventBase) => void
   onHint: (event: EventBase) => void
   errors: Record<string, string[]>
-  undo?: () => void
 }
 
-export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, undo}) => {
+export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, undo, redo}) => {
   const [selectedClassName, setSelectedClassName] = useState('')
 
   const onSelect = setSelectedClassName
@@ -29,20 +33,20 @@ export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, u
         onCommit={onEvent}
         onHint={onHint}
       />}
-      <Buttons classes={classes} onSelect={onSelect} undo={undo}/>
+      <Buttons classes={classes} onSelect={onSelect} undo={undo} redo={redo}/>
     </>
   )
 }
 
-interface ButtonsProps {
+interface ButtonsProps extends UndoRedo {
   classes: EventClass[],
   onSelect: (name: string) => void
-  undo?: () => void
 }
 
-const Buttons: FC<ButtonsProps> = ({classes, onSelect, undo}) => {
+const Buttons: FC<ButtonsProps> = ({classes, onSelect, undo, redo}) => {
   const sel = useCallback(e => onSelect(e.target.getAttribute('data-name')), [])
-  const onClick = useMemo(() => () => undo?.(), [undo])
+  const onUndo = useMemo(() => () => undo?.(), [undo])
+  const onRedo = useMemo(() => () => redo?.(), [redo])
 
   return <div className="buttons my-2">
     {classes.map((c, i) => (
@@ -51,6 +55,8 @@ const Buttons: FC<ButtonsProps> = ({classes, onSelect, undo}) => {
         {' '}
       </React.Fragment>
     ))}
-    {undo && <button type="button" className="btn btn-dark mb-1" onClick={onClick}>Undo</button>}
+    {undo && <button type="button" className="btn btn-dark mb-1" onClick={onUndo}>Undo</button>}
+    {' '}
+    {redo && <button type="button" className="btn btn-dark mb-1" onClick={onRedo}>Redo</button>}
   </div>
 }
