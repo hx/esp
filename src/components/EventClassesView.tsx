@@ -39,7 +39,7 @@ const Buttons: FC<{ classes: EventClass[], onSelect: (name: string) => void }> =
   return <div className="buttons my-2">
     {classes.map((c, i) => (
       <React.Fragment key={i}>
-        <button type="button" className="btn btn-primary" data-name={c.name} onClick={sel}>{c.displayName}</button>
+        <button type="button" className="btn btn-primary mb-1" data-name={c.name} onClick={sel}>{c.displayName}</button>
         {' '}
       </React.Fragment>
     ))}

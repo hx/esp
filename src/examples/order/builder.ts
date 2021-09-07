@@ -2,7 +2,7 @@ import { Big } from 'big.js'
 
 import { EventBase, createBuilder } from '../../esp'
 import { AnyArgs } from '../../esp/Builder'
-import { Currency, Item, Order, Payment, currencyNames } from './Order'
+import { Currency, Item, Order, Payment, currencyNames, isItem } from './Order'
 import { nextID, orderBalance, orderItems, orderPayments } from './orderDerivation'
 
 type AddItemEvent = EventBase<'addItem', {
@@ -18,6 +18,11 @@ type SetCurrencyEvent = EventBase<'setCurrency', {
 type MakePaymentEvent = EventBase<'makePayment', {
   method: string
   amount: number
+}>
+
+type ChangeQuantityEvent = EventBase<'changeQuantity', {
+  itemID: number
+  quantity: number
 }>
 
 interface ItemTaxEvent extends AnyArgs {
@@ -98,6 +103,34 @@ export const createOrderBuilder = (order: Partial<Order> = {}) => createBuilder(
         Object.entries(AVAILABLE_METHODS).map(([name, id]) => ({displayName: name, value: id}))
       )
       makePaymentEvent.addArgument('amount', 'Amount', balance.toNumber())
+    }
+
+    if (items[0]) {
+      /**
+       * Change line quantity
+       */
+
+      const changeQuantityEvent = add<ChangeQuantityEvent>('changeQuantity', 'Change line quantity')
+        .handle(({event: {args}, reject}) => {
+          const itemIndex = order.lines.findIndex(item => item.id === args.itemID && isItem(item))
+          if (itemIndex === -1) {
+            return reject('Invalid item ID')
+          }
+
+          const item: Item = {
+            ...order.lines[itemIndex] as Item,
+            quantity: args.quantity
+          }
+
+          return {...order, lines: [...order.lines.slice(0, itemIndex), item, ...order.lines.slice(itemIndex+1)]}
+        })
+
+      const lastItem = items[items.length - 1]
+
+      changeQuantityEvent.addArgument('itemID', 'Item', lastItem.id).options(
+        items.map(item => ({displayName: `#${item.id}. ${item.name}`, value: item.id}))
+      )
+      changeQuantityEvent.addArgument('quantity', 'Quantity', lastItem.quantity)
     }
   }
 )
