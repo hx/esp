@@ -1,4 +1,4 @@
-import { Coordinate, coordinate, file, rank } from './Coordinate'
+import { Coordinate, file, rank } from './Coordinate'
 
 export interface Vector {
   file: number

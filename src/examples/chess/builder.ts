@@ -1,5 +1,5 @@
 import { EventBase, createBuilder } from '../../esp'
-import { Game, PieceType, newGame, play, takeBack } from './game'
+import { PieceType, newGame, play, takeBack } from './game'
 import { Coordinate, coordinate } from './game/Coordinate'
 import { english } from './game/i18n'
 import { legalMoves } from './game/legalMoves'

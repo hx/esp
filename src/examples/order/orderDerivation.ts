@@ -1,5 +1,5 @@
 import Big from 'big.js'
-import { Item, Line, Order, Payment, SaleItem, TaxItem, isItem, isPayment, isSaleItem, isTaxItem } from './Order'
+import { Item, Line, Order, Payment, isItem, isPayment, isSaleItem, isTaxItem } from './Order'
 
 interface Sum {
   (nums: Big[]): Big

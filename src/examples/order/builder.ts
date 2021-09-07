@@ -1,9 +1,9 @@
 import { Big } from 'big.js'
 
 import { EventBase, createBuilder } from '../../esp'
-import { AnyArgs, EventClassBuilder } from '../../esp/Builder'
+import { EventClassBuilder } from '../../esp/Builder'
 import { replaceAtIndex } from '../../utilities'
-import { Currency, Item, Order, Payment, SaleItem, TaxItem, currencyNames, isItem } from './Order'
+import { Currency, Order, Payment, SaleItem, TaxItem, currencyNames, isItem } from './Order'
 import { nextID, orderBalance, orderItems, orderPayments, orderSaleItems } from './orderDerivation'
 
 type AddSaleItemEvent = EventBase<'addItem', {

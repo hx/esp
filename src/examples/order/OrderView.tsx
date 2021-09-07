@@ -1,6 +1,6 @@
 import Big from 'big.js'
 import React, { FC, useMemo } from 'react'
-import { Item, Order, Payment, isItem, isPayment, isSaleItem, isTaxItem } from './Order'
+import { Item, Order, Payment, isSaleItem, isTaxItem } from './Order'
 import {
   orderBalance,
   orderItemSubtotal,

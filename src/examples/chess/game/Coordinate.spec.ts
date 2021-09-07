@@ -1,4 +1,4 @@
-import { coordinate, Coordinate, file, rank } from './Coordinate'
+import { Coordinate, coordinate, file, rank } from './Coordinate'
 
 describe('Coordinates', () => {
   it('has a sane enum', () => {
