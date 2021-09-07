@@ -9,7 +9,7 @@ import { Placement } from './game/Placement'
 
 export const GameView: FC<{ model: Game }> = ({model}) => {
   const lastMove = model.playedMoves[model.playedMoves.length - 1]
-  const position   = model.positions[model.positions.length - 1]
+  const position = model.positions[model.positions.length - 1]
   return (
     <div>
       <BoardView placement={position.placement}/>
