@@ -33,6 +33,15 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
 
   const {model, eventClasses} = builder
 
+  const undo = useCallback((steps = 1) => {
+    const newEvents = events.slice(0, -steps)
+    let builder = initialBuilder
+    newEvents.forEach(e => builder = builder.raiseEvent(e))
+    setEvents(newEvents)
+    setBuilder(builder)
+    setErrors({})
+  }, [initialBuilder, events])
+
   return (
     <div className="container-fluid">
       <div className="masthead row">
@@ -47,6 +56,7 @@ export const App = <T extends unknown>({builder: initialBuilder, view: View}: Pr
             key={events.length}
             onEvent={onEvent}
             onHint={onHint}
+            undo={events[0] && undo}
           />
         </div>
         <div className="right col-6">

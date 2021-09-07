@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback, useMemo, useState } from 'react'
 import { EventBase, EventClass } from '../esp/Builder'
 import { SelectedEventClassView } from './SelectedEventClassView'
 
@@ -7,9 +7,10 @@ interface Props {
   onEvent: (event: EventBase) => void
   onHint: (event: EventBase) => void
   errors: Record<string, string[]>
+  undo?: () => void
 }
 
-export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors}) => {
+export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, undo}) => {
   const [selectedClassName, setSelectedClassName] = useState('')
 
   const onSelect = setSelectedClassName
@@ -28,13 +29,20 @@ export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors}) 
         onCommit={onEvent}
         onHint={onHint}
       />}
-      <Buttons classes={classes} onSelect={onSelect}/>
+      <Buttons classes={classes} onSelect={onSelect} undo={undo}/>
     </>
   )
 }
 
-const Buttons: FC<{ classes: EventClass[], onSelect: (name: string) => void }> = ({classes, onSelect}) => {
+interface ButtonsProps {
+  classes: EventClass[],
+  onSelect: (name: string) => void
+  undo?: () => void
+}
+
+const Buttons: FC<ButtonsProps> = ({classes, onSelect, undo}) => {
   const sel = useCallback(e => onSelect(e.target.getAttribute('data-name')), [])
+  const onClick = useMemo(() => () => undo?.(), [undo])
 
   return <div className="buttons my-2">
     {classes.map((c, i) => (
@@ -43,5 +51,6 @@ const Buttons: FC<{ classes: EventClass[], onSelect: (name: string) => void }> =
         {' '}
       </React.Fragment>
     ))}
+    {undo && <button type="button" className="btn btn-dark mb-1" onClick={onClick}>Undo</button>}
   </div>
 }
