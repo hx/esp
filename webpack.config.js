@@ -22,6 +22,15 @@ module.exports = {
       },
     ],
   },
+  devServer: {
+    host: '127.0.0.1',
+    port: 3599,
+    static: {
+      directory: path.resolve(__dirname, 'public')
+    },
+    hot: false,
+    open: true
+  },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },

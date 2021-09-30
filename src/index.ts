@@ -4,11 +4,14 @@ import { createChessGameBuilder } from './examples/chess/builder'
 import { GameView } from './examples/chess/GameView'
 import { createOrderBuilder } from './examples/order/builder'
 import { OrderView } from './examples/order/OrderView'
+import { Welcome, createNullBuilder } from './examples/welcome'
 
 const options = {
-  chess: () => boot(createChessGameBuilder(), GameView),
-  order: () => boot(createOrderBuilder({currencyCode: 'AUD'}), OrderView)
+  welcome: () => boot(createNullBuilder(), Welcome),
+  chess:   () => boot(createChessGameBuilder(), GameView),
+  order:   () => boot(createOrderBuilder({currencyCode: 'AUD'}), OrderView)
 }
 
-options.chess()
+options.welcome()
+// options.chess()
 // options.order()
