@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo } from 'react'
 import { EventClass } from '../esp/Builder'
+import { Button } from './Button'
 import { UndoRedo } from './UndoRedo'
 
 interface Props extends UndoRedo {
@@ -8,14 +9,13 @@ interface Props extends UndoRedo {
 }
 
 export const Buttons: FC<Props> = ({classes, onSelect, undo, redo}) => {
-  const sel = useCallback(e => onSelect(e.target.getAttribute('data-name')), [])
   const onUndo = useMemo(() => () => undo?.(), [undo])
   const onRedo = useMemo(() => () => redo?.(), [redo])
 
   return <div className="buttons my-2">
     {classes.map((c, i) => (
       <React.Fragment key={i}>
-        <button type="button" className="btn btn-primary mb-1" data-name={c.name} onClick={sel}>{c.displayName}</button>
+        <Button eventClass={c} onSelect={onSelect}/>
         {' '}
       </React.Fragment>
     ))}
