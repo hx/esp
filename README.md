@@ -35,6 +35,8 @@ To create a model that can be built by ESP, you'll need to implement:
 
 Model state can be any TypeScript type you like.
 
+You can organise your TypeScript files however you like with the [src](/src) directory.
+
 ### Views
 
 Your model's view will be rendered on the right half of the screen. It should be implemented as a React component that

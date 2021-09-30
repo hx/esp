@@ -7,7 +7,9 @@ export interface Piece {
   type: PieceType
 }
 
-export const figurines = {
+export type Figurines = Record<Color, Record<PieceType, string>>
+
+export const figurines: Figurines = {
   [Color.Black]: {
     [PieceType.Pawn]: '♟',
     [PieceType.Knight]: '♞',
@@ -26,9 +28,8 @@ export const figurines = {
   }
 }
 
-export type Figurines = Record<Color, Record<PieceType, string>>
-
 export const figurine = (piece: Piece) => figurines[piece.color][piece.type]
+
 export const letter = (piece: Piece, language: Language = english) => {
   const letter = language.pieces[piece.type].letter
   return piece.color === Color.White ? letter : letter.toLowerCase()

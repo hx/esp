@@ -25,23 +25,3 @@ export const english: Language = {
     [Color.White]: 'White',
   }
 }
-
-// export interface Language {
-//   pieces: Map<PieceType, PieceTranslation>
-//   colors: Map<Color, string>
-// }
-//
-// export const english: Language = {
-//   pieces: new Map([
-//     [PieceType.Pawn,   {letter: 'P', name: 'Pawn'}],
-//     [PieceType.Knight, {letter: 'N', name: 'Knight'}],
-//     [PieceType.Bishop, {letter: 'B', name: 'Bishop'}],
-//     [PieceType.Rook,   {letter: 'R', name: 'Rook'}],
-//     [PieceType.Queen,  {letter: 'Q', name: 'Queen'}],
-//     [PieceType.King,   {letter: 'K', name: 'King'}],
-//   ]),
-//   colors: new Map([
-//     [Color.Black, 'Black'],
-//     [Color.White, 'White'],
-//   ])
-// }

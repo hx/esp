@@ -12,6 +12,6 @@ const options = {
   order:   () => boot(createOrderBuilder({currencyCode: 'AUD'}), OrderView)
 }
 
-options.welcome()
-// options.chess()
+// options.welcome()
+options.chess()
 // options.order()

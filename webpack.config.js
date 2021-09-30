@@ -29,6 +29,7 @@ module.exports = {
       directory: path.resolve(__dirname, 'public')
     },
     hot: false,
+    liveReload: false,
     open: true
   },
   resolve: {
