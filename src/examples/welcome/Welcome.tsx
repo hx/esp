@@ -15,4 +15,5 @@ export const Welcome: FC<{model: null}> = () =>
     </p>
     <p>Happy modelling!</p>
     <p><cite>Neil</cite> 💙</p>
+    <p className="small">👈 P.S. that column’s intentionally blank at the moment.</p>
   </div>
