@@ -1,4 +1,4 @@
-import { EventBase, createBuilder } from '../../esp'
+import { EventBase, createAggregate } from '../../esp'
 import { Counter } from './Counter'
 
 type IncrementEvent = EventBase<'increment', {
@@ -10,7 +10,7 @@ type DecrementEvent = EventBase<'decrement', {
 
 const DEFAULTS: Counter = {count: 0}
 
-export const createCounterBuilder = (counter: Partial<Counter> = {}) => createBuilder(
+export const createCounterAggregate = (counter: Partial<Counter> = {}) => createAggregate(
   {...DEFAULTS, ...counter},
   (counter, add) => {
     add<IncrementEvent>('increment', 'Increment')
