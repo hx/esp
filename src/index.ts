@@ -1,18 +1,15 @@
 import { boot } from './boot'
 import './css/app.scss'
-import { createChessGameBuilder } from './examples/chess/builder'
-import { GameView } from './examples/chess/GameView'
-import { createOrderBuilder } from './examples/order/builder'
-import { OrderView } from './examples/order/OrderView'
 import { Welcome, createNullBuilder } from './examples/welcome'
-import { CounterView } from './examples/counter/CounterView'
-import { createCounterBuilder } from './examples/counter/builder'
+import { GameView, createChessGameBuilder } from './examples/chess'
+import { OrderView, createOrderBuilder } from './examples/order'
+import { CounterView, createCounterBuilder } from './examples/counter'
 
 const options = {
   welcome: () => boot(createNullBuilder(), Welcome),
   chess:   () => boot(createChessGameBuilder(), GameView),
   order:   () => boot(createOrderBuilder({currencyCode: 'AUD'}), OrderView),
-  counter: () => boot(createCounterBuilder({}), CounterView)
+  counter: () => boot(createCounterBuilder(), CounterView)
 }
 
 // options.welcome()

@@ -1,23 +1,20 @@
 import { EventBase, createBuilder } from '../../esp'
-import { Counter } from './Counter'
 
 type IncrementEvent = EventBase<'increment', {
-    quantity: number
+    amount: number
 }>
 type DecrementEvent = EventBase<'decrement', {
-    quantity: number
+    amount: number
 }>
 
-const DEFAULTS: Counter = {count: 0}
-
-export const createCounterBuilder = (counter: Partial<Counter> = {}) => createBuilder(
-  {...DEFAULTS, ...counter},
+export const createCounterBuilder = (counter = 0) => createBuilder(
+  counter,
   (counter, add) => {
     add<IncrementEvent>('increment', 'Increment')
-      .handle(({event}) => ({count: counter.count + event.args.quantity}))
-      .addArgument('quantity', 'Quantity', 1)
+      .handle(({event}) => (counter + event.args.amount))
+      .addArgument('amount', 'Quantity', 1)
     add<DecrementEvent>('decrement', 'Decrement')
-      .handle(({event}) => ({count: counter.count - event.args.quantity}))
-      .addArgument('quantity', 'Quantity', 1)
+      .handle(({event}) => (counter - event.args.amount))
+      .addArgument('amount', 'Quantity', 1)
   }
 )
