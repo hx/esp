@@ -56,24 +56,24 @@ export const TodoListView: FC<{ model: TodoList }> = ({model}) =>
 
 ESP uses good ol' [Bootstrap](https://getbootstrap.com/) and [SCSS](https://sass-lang.com/) for its styling needs. Add an `@import` to [src/css/app.scss](src/css/app.scss) if you need extra CSS for your view.
 
-### Builders
+### Aggregates
 
-Builders are a combination of a seed state and a function that will be called repeatedly to set up possible events.
+Aggregates are a combination of a seed state and a function that will be called repeatedly to set up possible events.
 
 ```typescript jsx
 const todoList: TodoList = {Todos: []}
 
-const todoListBuilder = createBuilder(todoList, (todoList, add) => {
+const todoListAggregate = createAggregate(todoList, (todoList, add) => {
   // More on how this works below
 })
 ```
 
 ### Putting them together
 
-Boot ESP to build a model using a builder created by `createBuilder`, and a view with a `model` prop, by editing [src/index.ts](src/index.ts), which should call `boot` exactly once.
+Boot ESP to build a model using an aggregate created by `createAggregate`, and a view with a `model` prop, by editing [src/index.ts](src/index.ts), which should call `boot` exactly once.
 
 ```typescript jsx
-boot(todoListBuilder, TodoListView)
+boot(todoListAggregate, TodoListView)
 ```
 
 ## Defining events
@@ -87,7 +87,7 @@ type NewTodo = EventBase<'newTodo'>
 We can now tell ESP to render a button that triggers a `newTodo` event of type `NewTodo`, and how that event should mutate our model.
 
 ```typescript jsx
-const todoListBuilder = createBuilder(todoList, (todoList, add) => {
+const todoListAggregate = createAggregate(todoList, (todoList, add) => {
   add<NewTodo>('newTodo', 'New').handle(() => ({todos: [...todoList.todos, {description: ''}]}))
 })
 ```
@@ -113,7 +113,7 @@ type NewTodo = EventBase<'newTodo', {
   description: string
 }>
 
-const todoListBuilder = createBuilder(todoList, (todoList, add) => {
+const todoListAggregate = createAggregate(todoList, (todoList, add) => {
   const newTodoEvent = add<NewTodo>('newTodo', 'New')
   newTodoEvent.addArgument('description', 'Description')
   newTodoEvent.handle(({event: {description}}) => ({todos: [...todoList.todos, {description}]}))
@@ -181,13 +181,13 @@ if (todoList.todos[0]) {
 
 When you have multiple arguments, you can use the input state of other arguments to conditionally show/hide arguments, change options, labels, etc.
 
-Check out [chess/builder.ts](src/examples/chess/builder.ts) for an example of the `getArgument` function.
+Check out [chess/aggregate.ts](src/examples/chess/aggregate.ts) for an example of the `getArgument` function.
 
 ### Cleaning up
 
-It's worth noting that most of our handlers use the original `todoList` passed to the main builder function, relying on its closure scope to access that value.
+It's worth noting that most of our applicators use the original `todoList` passed to the main processing function, relying on its closure scope to access that value.
 
-Once your builder gets big enough, you may want to refactor your handlers into their own separate functions, which means this scope will no longer be available.
+Once your process gets big enough, you may want to refactor your handlers into their own separate functions, which means this scope will no longer be available.
 
 Along with `event` and `reject`, which we've covered above, the payload passed to event handlers also has a `model` property. The handler above could be extracted by replacing `todoList` with `model`:
 
@@ -198,7 +198,7 @@ const handleDeleteTodoEvent: EventHandler<TodoList, DeleteTodo> = ({event, model
 ]})
 ```
 
-This can make the main builder a bit neater:
+This can make the main process a bit neater:
 
 ```typescript jsx
 add<DeleteTodo>('deleteTodo', 'Delete').handle(handleDeleteTodoEvent)

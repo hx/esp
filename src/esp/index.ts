@@ -1,2 +1,2 @@
-export { EventBase, Builder } from './Builder'
-export { createBuilder } from './createBuilder'
+export { EventBase, Aggregate } from './Aggregate'
+export { createAggregate } from './createAggregate'

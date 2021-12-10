@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useMemo, useState } from 'react'
-import { Builder, EventBase } from '../esp'
+import { Aggregate, EventBase } from '../esp'
 import { replaceAtIndex } from '../utilities'
 import { EventClassesView } from './EventClassesView'
 import { EventsView } from './EventsView'
@@ -7,35 +7,35 @@ import { EventsView } from './EventsView'
 export type View<T> = FC<{ model: T }>
 
 interface Props<T> {
-  builder: Builder<T>
+  aggregate: Aggregate<T>
   view: View<T>
 }
 
-export const App = <T extends unknown>({builder: initialBuilder, view: View}: Props<T>) => {
-  const [builders, setBuilders] = useState([initialBuilder])
-  const [events, setEvents]     = useState<EventBase[]>([])
-  const [undone, setUndone]     = useState<EventBase[]>([])
-  const [errors, setErrors]     = useState<Record<string, string[]>>({})
-  const builder                 = useMemo(() => builders[events.length], [builders, events])
+export const App = <T extends unknown>({aggregate: initialAggregate, view: View}: Props<T>) => {
+  const [aggregates, setAggregates] = useState([initialAggregate])
+  const [events, setEvents]         = useState<EventBase[]>([])
+  const [undone, setUndone]         = useState<EventBase[]>([])
+  const [errors, setErrors]         = useState<Record<string, string[]>>({})
+  const aggregate                   = useMemo(() => aggregates[events.length], [aggregates, events])
 
   const onEvent = useCallback((event: EventBase) => {
-    const newBuilder = builder.raiseEvent(event)
+    const newAggregate = aggregate.raiseEvent(event)
     if (event.errors) {
       setErrors({[event.name]: event.errors})
       return
     }
     setErrors({})
-    setBuilders([...builders.slice(0, events.length+1), newBuilder])
+    setAggregates([...aggregates.slice(0, events.length+1), newAggregate])
     setEvents([...events, event])
     setUndone([])
-  }, [builder, events])
+  }, [aggregate, events])
 
   const onHint = useCallback((event: EventBase) => {
-    const newBuilder = builder.hintEvent(event)
-    setBuilders(replaceAtIndex(builders, builders.length-1, newBuilder))
-  }, [builder])
+    const newAggregate = aggregate.hintEvent(event)
+    setAggregates(replaceAtIndex(aggregates, aggregates.length-1, newAggregate))
+  }, [aggregate])
 
-  const {model, eventClasses} = builder
+  const {model, eventClasses} = aggregate
 
   const undo = useCallback((steps = 1) => {
     const remaining = events.slice(0, -steps)

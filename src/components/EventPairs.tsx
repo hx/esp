@@ -1,5 +1,5 @@
 import React, { FC, useMemo } from 'react'
-import { AnyArgs } from '../esp/Builder'
+import { AnyArgs } from '../esp/Aggregate'
 
 type Pairs = Array<[string, unknown]>
 

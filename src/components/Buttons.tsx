@@ -1,5 +1,5 @@
-import React, { FC, useCallback, useMemo } from 'react'
-import { EventClass } from '../esp/Builder'
+import React, { FC, useMemo } from 'react'
+import { EventClass } from '../esp/Aggregate'
 import { Button } from './Button'
 import { UndoRedo } from './UndoRedo'
 

@@ -1,2 +1,2 @@
-export * from './NullBuilder'
+export * from './NullAggregate'
 export * from './Welcome'

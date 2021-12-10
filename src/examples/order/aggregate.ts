@@ -1,7 +1,7 @@
 import { Big } from 'big.js'
 
-import { EventBase, createBuilder } from '../../esp'
-import { EventClassBuilder } from '../../esp/Builder'
+import { EventBase, createAggregate } from '../../esp'
+import { EventClassBuilder } from '../../esp/Aggregate'
 import { replaceAtIndex } from '../../utilities'
 import { Currency, Order, Payment, SaleItem, TaxItem, currencyNames, isItem, isSaleItem } from './Order'
 import { nextID, orderBalance, orderItems, orderPayments, orderSaleItems } from './orderDerivation'
@@ -46,7 +46,7 @@ const AVAILABLE_METHODS: Record<string, string> = {
 
 const DEFAULTS: Order = {currencyCode: 'AUD', lines: []}
 
-export const createOrderBuilder = (order: Partial<Order> = {}) => createBuilder(
+export const createOrderAggregate = (order: Partial<Order> = {}) => createAggregate(
   {...DEFAULTS, ...order},
   (order, add) => {
     /**

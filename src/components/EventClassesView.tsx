@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useState } from 'react'
-import { EventBase, EventClass } from '../esp/Builder'
+import { EventBase, EventClass } from '../esp/Aggregate'
 import { Buttons } from './Buttons'
 import { SelectedEventClassView } from './SelectedEventClassView'
 import { UndoRedo } from './UndoRedo'

@@ -1,12 +1,12 @@
 import React from 'react'
 import { render } from 'react-dom'
 import { App, View } from './components/App'
-import { Builder } from './esp'
+import { Aggregate } from './esp'
 
-export const boot = <T extends unknown>(builder: Builder<T>, view: View<T>) => {
+export const boot = <T extends unknown>(aggregate: Aggregate<T>, view: View<T>) => {
   const container = document.getElementById('app')
   render(
-    <App builder={builder} view={view}/>,
+    <App aggregate={aggregate} view={view}/>,
     container
   )
 }

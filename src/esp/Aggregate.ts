@@ -55,9 +55,9 @@ export interface EventClass<T = any, EventType extends EventBase = EventBase> {
   handlers: EventHandler<T, EventType>[]
 }
 
-export interface Builder<T> {
+export interface Aggregate<T> {
   model: T
   eventClasses: EventClass[]
-  hintEvent(event: EventBase): Builder<T>
-  raiseEvent(event: EventBase): Builder<T>
+  hintEvent(event: EventBase): Aggregate<T>
+  raiseEvent(event: EventBase): Aggregate<T>
 }

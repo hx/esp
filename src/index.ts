@@ -1,17 +1,17 @@
 import { boot } from './boot'
 import './css/app.scss'
-import { createChessGameBuilder } from './examples/chess/builder'
+import { createChessGameAggregate } from './examples/chess/aggregate'
 import { GameView } from './examples/chess/GameView'
-import { createOrderBuilder } from './examples/order/builder'
+import { createOrderAggregate } from './examples/order/aggregate'
 import { OrderView } from './examples/order/OrderView'
-import { Welcome, createNullBuilder } from './examples/welcome'
+import { Welcome, createNullAggregate } from './examples/welcome'
 
 const options = {
-  welcome: () => boot(createNullBuilder(), Welcome),
-  chess:   () => boot(createChessGameBuilder(), GameView),
-  order:   () => boot(createOrderBuilder({currencyCode: 'AUD'}), OrderView)
+  welcome: () => boot(createNullAggregate(), Welcome),
+  chess:   () => boot(createChessGameAggregate(), GameView),
+  order:   () => boot(createOrderAggregate({currencyCode: 'AUD'}), OrderView)
 }
 
-// options.welcome()
-options.chess()
+options.welcome()
+// options.chess()
 // options.order()

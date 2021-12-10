@@ -1,6 +1,6 @@
 import classNames from 'classnames'
 import React, { FC, useCallback, useState } from 'react'
-import { EventBase, EventClass } from '../esp/Builder'
+import { EventBase, EventClass } from '../esp/Aggregate'
 import { mapToObj } from '../utilities'
 import { ArgumentView } from './ArgumentView'
 

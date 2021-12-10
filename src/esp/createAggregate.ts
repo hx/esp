@@ -1,8 +1,8 @@
 import { mapToObj } from '../utilities'
 import {
+  Aggregate,
   AnyArgs,
   ArgumentClass,
-  Builder,
   EventBase,
   EventClass,
   EventClassBuilder,
@@ -10,16 +10,16 @@ import {
   EventClassesBuilder,
   EventHandler,
   Option
-} from './Builder'
+} from './Aggregate'
 
-interface BuilderState<T> {
+interface State<T> {
   model: T
   eventHints: Record<string, AnyArgs>
   eventClasses: EventClass[]
   eventClassesBuilder: EventClassesBuilder<T>
 }
 
-const addEventToState = <T>(state: BuilderState<T>, event: EventBase): BuilderState<T> => ({
+const addEventToState = <T>(state: State<T>, event: EventBase): State<T> => ({
   ...state,
   eventHints: {
     ...state.eventHints,
@@ -27,7 +27,7 @@ const addEventToState = <T>(state: BuilderState<T>, event: EventBase): BuilderSt
   }
 })
 
-const raiseEvent = <T>(state: BuilderState<T>, event: EventBase): Builder<T> => {
+const raiseEvent = <T>(state: State<T>, event: EventBase): Aggregate<T> => {
   const newState = {...state, eventHints: {}}
   const errors: string[] = []
   const reject = (reason: string) => {
@@ -39,15 +39,15 @@ const raiseEvent = <T>(state: BuilderState<T>, event: EventBase): Builder<T> => 
   state.eventClasses
     .find(c => c.name === event.name)?.handlers
     ?.forEach(h => newState.model = h({event, reject, model: newState.model}))
-  return makeBuilderFromState(errors.length === 0 ? newState : state)
+  return makeAggregateFromState(errors.length === 0 ? newState : state)
 }
 
-const hintEvent = <T>(state: BuilderState<T>, event: EventBase): Builder<T> =>
-  makeBuilderFromState(addEventToState(state, event))
+const hintEvent = <T>(state: State<T>, event: EventBase): Aggregate<T> =>
+  makeAggregateFromState(addEventToState(state, event))
 
 const DuplicateEventClassName = new Error('Duplicate event class name')
 
-const createEventClassCreator = <T>(state: BuilderState<T>, eventClasses: EventClass<T>[]): EventClassCreator<T> =>
+const createEventClassCreator = <T>(state: State<T>, eventClasses: EventClass<T>[]): EventClassCreator<T> =>
   <EventType extends EventBase>(name: EventType['name'], displayName = name) => {
     if (eventClasses.find(e => e.name === name)) {
       throw DuplicateEventClassName
@@ -90,21 +90,21 @@ const createEventClassCreator = <T>(state: BuilderState<T>, eventClasses: EventC
     return ret
   }
 
-const buildEventClasses = <T>(state: BuilderState<T>): EventClass[] => {
+const buildEventClasses = <T>(state: State<T>): EventClass[] => {
   const result: EventClass[] = []
   state.eventClassesBuilder(state.model, createEventClassCreator(state, result))
   return result
 }
 
-export const createBuilder = <T>(model: T, classBuilder: EventClassesBuilder<T>): Builder<T> =>
-  makeBuilderFromState({
+export const createAggregate = <T>(model: T, classBuilder: EventClassesBuilder<T>): Aggregate<T> =>
+  makeAggregateFromState({
     model,
     eventHints:          {},
     eventClasses:        [],
     eventClassesBuilder: classBuilder
   })
 
-const makeBuilderFromState = <T>(state: BuilderState<T>): Builder<T> => {
+const makeAggregateFromState = <T>(state: State<T>): Aggregate<T> => {
   const eventClasses = buildEventClasses(state)
   const eventHints = Object.keys(state.eventHints).length === 0 ? makeEventHints(eventClasses) : state.eventHints
   state            = {...state, eventClasses, eventHints}
