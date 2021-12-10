@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from 'react'
-import { EventClass } from '../esp/Aggregate'
 import { Button } from './Button'
 import { UndoRedo } from './UndoRedo'
+import { EventClass } from '../esp/EventClass'
 
 interface Props extends UndoRedo {
   classes: EventClass[],

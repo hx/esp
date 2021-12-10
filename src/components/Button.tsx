@@ -1,5 +1,5 @@
 import React, { FC, useCallback } from 'react'
-import { EventClass } from '../esp/Aggregate'
+import { EventClass } from '../esp/EventClass'
 
 interface Props {
   eventClass: EventClass

@@ -1,7 +1,6 @@
 import { Big } from 'big.js'
 
-import { EventBase, createAggregate } from '../../esp'
-import { EventClassBuilder } from '../../esp/Aggregate'
+import { EventBase, EventClassBuilder, createAggregate } from '../../esp'
 import { replaceAtIndex } from '../../utilities'
 import { Currency, Order, Payment, SaleItem, TaxItem, currencyNames, isItem, isSaleItem } from './Order'
 import { nextID, orderBalance, orderItems, orderPayments, orderSaleItems } from './orderDerivation'

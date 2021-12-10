@@ -1,16 +1,14 @@
 import { mapToObj } from '../utilities'
-import {
-  Aggregate,
-  AnyArgs,
-  ArgumentClass,
-  EventBase,
-  EventClass,
-  EventClassBuilder,
-  EventClassCreator,
-  EventClassesBuilder,
-  EventHandler,
-  Option
-} from './Aggregate'
+import { Aggregate } from './Aggregate'
+import { EventClass } from './EventClass'
+import { EventBase } from './EventBase'
+import { EventClassCreator } from './EventClassCreator'
+import { EventClassesBuilder } from './EventClassesBuilder'
+import { ArgumentClass } from './ArgumentClass'
+import { Option } from './Option'
+import { AnyArgs } from './types'
+import { EventClassBuilder } from './EventClassBuilder'
+import { EventHandler } from './EventHandler'
 
 interface State<T> {
   model: T
@@ -55,7 +53,7 @@ const createEventClassCreator = <T>(state: State<T>, eventClasses: EventClass<T>
     const eventClass: EventClass = {
       name, displayName,
       arguments: [],
-      handlers:  []
+      handlers: []
     }
     eventClasses.push(eventClass)
     const ret: EventClassBuilder<T, EventType> = {

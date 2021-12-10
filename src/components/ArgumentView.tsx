@@ -1,5 +1,6 @@
 import React, { FC, useCallback, useMemo, useRef, useState } from 'react'
-import { ArgumentClass, Scalar } from '../esp/Aggregate'
+import { ArgumentClass } from '../esp/ArgumentClass'
+import { Scalar } from '../esp/types'
 
 let argID = 0
 

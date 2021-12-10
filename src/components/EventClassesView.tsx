@@ -1,8 +1,9 @@
 import React, { FC, useCallback, useState } from 'react'
-import { EventBase, EventClass } from '../esp/Aggregate'
 import { Buttons } from './Buttons'
 import { SelectedEventClassView } from './SelectedEventClassView'
 import { UndoRedo } from './UndoRedo'
+import { EventClass } from '../esp/EventClass'
+import { EventBase } from '../esp'
 
 interface Props extends UndoRedo {
   classes: EventClass[]

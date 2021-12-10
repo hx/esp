@@ -1,8 +1,9 @@
 import classNames from 'classnames'
 import React, { FC, useCallback, useState } from 'react'
-import { EventBase, EventClass } from '../esp/Aggregate'
 import { mapToObj } from '../utilities'
 import { ArgumentView } from './ArgumentView'
+import { EventClass } from '../esp/EventClass'
+import { EventBase } from '../esp'
 
 interface Props {
   eventClass: EventClass
