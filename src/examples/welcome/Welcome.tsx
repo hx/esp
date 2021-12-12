@@ -1,6 +1,7 @@
 import React, { FC } from 'react'
+import { Props } from '../../components'
 
-export const Welcome: FC<{projection: null}> = () =>
+export const Welcome: FC<Props<null>> = () =>
   <div>
     <h2>Next steps</h2>
     <p>It looks like you’re up and running with ESP. Nicely done.</p>

@@ -8,8 +8,9 @@ import {
 } from './orderDerivation'
 import { PaymentsView } from './PaymentsView'
 import { SummaryView } from './SummaryView'
+import { Props } from '../../components'
 
-export const OrderView: FC<{ projection: Order }> = ({projection: order}) => {
+export const OrderView: FC<Props<Order>> = ({projection: order}) => {
   const items    = useMemo(() => orderItems(order), [order])
   const payments = useMemo(() => orderPayments(order), [order])
   const format   = useMemo(

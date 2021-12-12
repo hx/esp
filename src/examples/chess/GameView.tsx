@@ -3,8 +3,9 @@ import { BoardView } from './BoardView'
 import { Game } from './game'
 import { english } from './game/i18n'
 import { describeMove } from './game/Move'
+import { Props } from '../../components'
 
-export const GameView: FC<{ projection: Game }> = ({projection}) => {
+export const GameView: FC<Props<Game>> = ({projection}) => {
   const lastMove = projection.playedMoves[projection.playedMoves.length - 1]
   const position = projection.positions[projection.positions.length - 1]
   return (

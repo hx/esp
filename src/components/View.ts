@@ -1,3 +1,7 @@
 import { FC } from 'react'
 
-export type View<T> = FC<{ projection: T }>
+export interface Props<T>{
+  projection: T
+}
+
+export type View<T> = FC<Props<T>>
