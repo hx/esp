@@ -1,10 +1,9 @@
-import React, { FC, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Aggregate, EventBase } from '../esp'
 import { replaceAtIndex } from '../utilities'
 import { EventClassesView } from './EventClassesView'
 import { EventsView } from './EventsView'
-
-export type View<T> = FC<{ projection: T }>
+import { View } from './View'
 
 interface Props<T> {
   aggregate: Aggregate<T>
