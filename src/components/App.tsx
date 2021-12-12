@@ -19,7 +19,7 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View}
   const aggregate                   = useMemo(() => aggregates[events.length], [aggregates, events])
 
   const onEvent = useCallback((event: EventBase) => {
-    const newAggregate = aggregate.raiseEvent(event)
+    const newAggregate = aggregate.applyEvent(event)
     if (event.errors) {
       setErrors({[event.name]: event.errors})
       return

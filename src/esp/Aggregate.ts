@@ -5,5 +5,5 @@ export interface Aggregate<T> {
   projection: T
   eventClasses: EventClass[]
   hintEvent(event: EventBase): Aggregate<T>
-  raiseEvent(event: EventBase): Aggregate<T>
+  applyEvent(event: EventBase): Aggregate<T>
 }

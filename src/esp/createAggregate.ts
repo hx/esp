@@ -25,7 +25,7 @@ const addEventToState = <T>(state: State<T>, event: EventBase): State<T> => ({
   }
 })
 
-const raiseEvent = <T>(state: State<T>, event: EventBase): Aggregate<T> => {
+const applyEvent = <T>(state: State<T>, event: EventBase): Aggregate<T> => {
   const newState = {...state, eventHints: {}}
   const errors: string[] = []
   const reject = (reason: string) => {
@@ -112,7 +112,7 @@ const makeAggregateFromState = <T>(state: State<T>): Aggregate<T> => {
     projection:        state.projection,
     eventClasses: state.eventClasses,
     hintEvent:    e => hintEvent(state, e),
-    raiseEvent:   e => raiseEvent(state, e)
+    applyEvent:   e => applyEvent(state, e)
   }
 }
 
