@@ -3,7 +3,7 @@ import { Aggregate } from './Aggregate'
 import { EventClass } from './EventClass'
 import { EventBase } from './EventBase'
 import { EventClassCreator } from './EventClassCreator'
-import { EventClassesBuilder } from './EventClassesBuilder'
+import { Applicator } from './Applicator'
 import { ArgumentClass } from './ArgumentClass'
 import { Option } from './Option'
 import { AnyArgs } from './types'
@@ -14,7 +14,7 @@ interface State<T> {
   projection: T
   eventHints: Record<string, AnyArgs>
   eventClasses: EventClass[]
-  eventClassesBuilder: EventClassesBuilder<T>
+  applicator: Applicator<T>
 }
 
 const addEventToState = <T>(state: State<T>, event: EventBase): State<T> => ({
@@ -92,16 +92,16 @@ const createEventClassCreator = <T>(state: State<T>, eventClasses: EventClass<T>
 
 const buildEventClasses = <T>(state: State<T>): EventClass[] => {
   const result: EventClass[] = []
-  state.eventClassesBuilder(state.projection, createEventClassCreator(state, result))
+  state.applicator(state.projection, createEventClassCreator(state, result))
   return result
 }
 
-export const createAggregate = <T>(projection: T, classBuilder: EventClassesBuilder<T>): Aggregate<T> =>
+export const createAggregate = <T>(seedState: T, applicator: Applicator<T>): Aggregate<T> =>
   makeAggregateFromState({
-    projection,
+    projection: seedState,
     eventHints:          {},
     eventClasses:        [],
-    eventClassesBuilder: classBuilder
+    applicator
   })
 
 const makeAggregateFromState = <T>(state: State<T>): Aggregate<T> => {
