@@ -11,6 +11,7 @@ import { EventClassBuilder } from './EventClassBuilder'
 import { EventHandler } from './EventHandler'
 
 interface State<T> {
+  history: EventBase[]
   projection: T
   eventHints: Record<string, AnyArgs>
   eventClasses: EventClass[]
@@ -26,7 +27,7 @@ const addEventToState = <T>(state: State<T>, event: EventBase): State<T> => ({
 })
 
 const applyEvent = <T>(state: State<T>, event: EventBase): Aggregate<T> => {
-  const newState = {...state, eventHints: {}}
+  const newState = {...state, eventHints: {}, history: [...state.history, event]}
   const errors: string[] = []
   const reject = (reason: string) => {
     errors.push(reason)
@@ -103,9 +104,10 @@ const buildEventClasses = <T>(state: State<T>): EventClass[] => {
  */
 export const createAggregate = <T>(seedState: T, applicator: Applicator<T>): Aggregate<T> =>
   makeAggregateFromState({
-    projection: seedState,
-    eventHints:          {},
-    eventClasses:        [],
+    history:      [],
+    projection:   seedState,
+    eventHints:   {},
+    eventClasses: [],
     applicator
   })
 
@@ -114,7 +116,8 @@ const makeAggregateFromState = <T>(state: State<T>): Aggregate<T> => {
   const eventHints = Object.keys(state.eventHints).length === 0 ? makeEventHints(eventClasses) : state.eventHints
   state            = {...state, eventClasses, eventHints}
   return {
-    projection:        state.projection,
+    history:      state.history,
+    projection:   state.projection,
     eventClasses: state.eventClasses,
     hintEvent:    e => hintEvent(state, e),
     applyEvent:   e => applyEvent(state, e)

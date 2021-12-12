@@ -6,6 +6,11 @@ import { EventBase } from './EventBase'
  */
 export interface Aggregate<T> {
   /**
+   * The events that accumulated to produce the aggregate.
+   */
+  history: EventBase[]
+
+  /**
    * The projection as it stands after the events that produced the aggregate.
    */
   projection: T
