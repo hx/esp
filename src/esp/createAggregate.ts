@@ -96,6 +96,11 @@ const buildEventClasses = <T>(state: State<T>): EventClass[] => {
   return result
 }
 
+/**
+ * Creates a seed {@link Aggregate} for use with ESP's GUI.
+ * @param seedState The initial state of the aggregate, from which all subsequent projections extend.
+ * @param applicator
+ */
 export const createAggregate = <T>(seedState: T, applicator: Applicator<T>): Aggregate<T> =>
   makeAggregateFromState({
     projection: seedState,
