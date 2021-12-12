@@ -4,9 +4,9 @@ import { Game } from './game'
 import { english } from './game/i18n'
 import { describeMove } from './game/Move'
 
-export const GameView: FC<{ model: Game }> = ({model}) => {
-  const lastMove = model.playedMoves[model.playedMoves.length - 1]
-  const position = model.positions[model.positions.length - 1]
+export const GameView: FC<{ projection: Game }> = ({projection}) => {
+  const lastMove = projection.playedMoves[projection.playedMoves.length - 1]
+  const position = projection.positions[projection.positions.length - 1]
   return (
     <div>
       <BoardView placement={position.placement}/>

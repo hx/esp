@@ -9,7 +9,7 @@ import {
 import { PaymentsView } from './PaymentsView'
 import { SummaryView } from './SummaryView'
 
-export const OrderView: FC<{ model: Order }> = ({model: order}) => {
+export const OrderView: FC<{ projection: Order }> = ({projection: order}) => {
   const items    = useMemo(() => orderItems(order), [order])
   const payments = useMemo(() => orderPayments(order), [order])
   const format   = useMemo(

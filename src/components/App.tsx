@@ -4,7 +4,7 @@ import { replaceAtIndex } from '../utilities'
 import { EventClassesView } from './EventClassesView'
 import { EventsView } from './EventsView'
 
-export type View<T> = FC<{ model: T }>
+export type View<T> = FC<{ projection: T }>
 
 interface Props<T> {
   aggregate: Aggregate<T>
@@ -35,7 +35,7 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View}
     setAggregates(replaceAtIndex(aggregates, aggregates.length-1, newAggregate))
   }, [aggregate])
 
-  const {model, eventClasses} = aggregate
+  const {projection, eventClasses} = aggregate
 
   const undo = useCallback((steps = 1) => {
     const remaining = events.slice(0, -steps)
@@ -72,7 +72,7 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View}
           />
         </div>
         <div className="right col-6">
-          <View model={model}/>
+          <View projection={projection}/>
         </div>
       </div>
     </div>

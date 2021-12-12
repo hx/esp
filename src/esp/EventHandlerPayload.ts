@@ -2,7 +2,7 @@ import { EventBase } from './EventBase'
 
 export interface EventHandlerPayload<T, EventType extends EventBase> {
   event: EventType
-  model: T
+  projection: T
 
   reject(reason: string): T
 }

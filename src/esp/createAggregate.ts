@@ -11,7 +11,7 @@ import { EventClassBuilder } from './EventClassBuilder'
 import { EventHandler } from './EventHandler'
 
 interface State<T> {
-  model: T
+  projection: T
   eventHints: Record<string, AnyArgs>
   eventClasses: EventClass[]
   eventClassesBuilder: EventClassesBuilder<T>
@@ -31,12 +31,14 @@ const raiseEvent = <T>(state: State<T>, event: EventBase): Aggregate<T> => {
   const reject = (reason: string) => {
     errors.push(reason)
     event.errors = errors
-    return state.model
+    return state.projection
   }
   delete event.errors
-  state.eventClasses
-    .find(c => c.name === event.name)?.handlers
-    ?.forEach(h => newState.model = h({event, reject, model: newState.model}))
+  state
+    .eventClasses
+    .find(c => c.name === event.name)
+    ?.handlers
+    ?.forEach(h => newState.projection = h({event, reject, projection: newState.projection}))
   return makeAggregateFromState(errors.length === 0 ? newState : state)
 }
 
@@ -90,13 +92,13 @@ const createEventClassCreator = <T>(state: State<T>, eventClasses: EventClass<T>
 
 const buildEventClasses = <T>(state: State<T>): EventClass[] => {
   const result: EventClass[] = []
-  state.eventClassesBuilder(state.model, createEventClassCreator(state, result))
+  state.eventClassesBuilder(state.projection, createEventClassCreator(state, result))
   return result
 }
 
-export const createAggregate = <T>(model: T, classBuilder: EventClassesBuilder<T>): Aggregate<T> =>
+export const createAggregate = <T>(projection: T, classBuilder: EventClassesBuilder<T>): Aggregate<T> =>
   makeAggregateFromState({
-    model,
+    projection,
     eventHints:          {},
     eventClasses:        [],
     eventClassesBuilder: classBuilder
@@ -107,7 +109,7 @@ const makeAggregateFromState = <T>(state: State<T>): Aggregate<T> => {
   const eventHints = Object.keys(state.eventHints).length === 0 ? makeEventHints(eventClasses) : state.eventHints
   state            = {...state, eventClasses, eventHints}
   return {
-    model:        state.model,
+    projection:        state.projection,
     eventClasses: state.eventClasses,
     hintEvent:    e => hintEvent(state, e),
     raiseEvent:   e => raiseEvent(state, e)

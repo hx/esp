@@ -1,3 +1,3 @@
 import { EventClassCreator } from './EventClassCreator'
 
-export type EventClassesBuilder<T> = (model: T, addEventClass: EventClassCreator<T>) => void
+export type EventClassesBuilder<T> = (projection: T, addEventClass: EventClassCreator<T>) => void
