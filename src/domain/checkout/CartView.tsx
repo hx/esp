@@ -5,6 +5,7 @@ import { CartInterface } from './Cart'
 import { PaymentsView } from './payment/PaymentsView'
 import { SummaryView } from './SummaryView'
 import { Props } from '../../components'
+import { FulfilmentsView } from './fulfilment/FulfilmentView'
 export const CartView: FC<Props<CartInterface>> = ({aggregate: {projection: cart}}) => {
   const items    = useMemo(() => cart.items(), [cart])
   const payments = useMemo(() => cart.payments(), [cart])
@@ -19,6 +20,8 @@ export const CartView: FC<Props<CartInterface>> = ({aggregate: {projection: cart
 
       <h5>Items</h5>
       {items[0] ? <ItemsView items={items} total = {cart.total()} format={format}/> : <None/>}
+      <h5>Fulfilments</h5>
+      <FulfilmentsView cart={cart} total={cart.totalShipments()} format={format} />
 
       <h5>Payments</h5>
       {payments[0] ? <PaymentsView payments={payments} total={cart.totalPayments()} format={format}/> : <None/>}

@@ -5,6 +5,7 @@ import { buildPayment } from './payment/paymentBuilder'
 import { buildProductLineItems } from './productLineItem/productBuilder'
 import {buildPromotionLineItems} from './promotion/promoBuilder'
 import {buildTaxLineItems} from './tax/taxBuilder'
+import { buildFulfilmentLineItems } from './fulfilment/fulfilmentBuilder'
 
 export const createCartAggregate = (cart: CartInterface) => createAggregate(
   cart,
@@ -13,6 +14,7 @@ export const createCartAggregate = (cart: CartInterface) => createAggregate(
     buildPromotionLineItems(cart, add)
     buildTaxLineItems(cart, add)
     buildCurrency(cart, add)
+    buildFulfilmentLineItems(cart, add)
     buildPayment(cart, add)
   }
 )

@@ -26,4 +26,3 @@ export const isPayment = (obj: unknown): obj is Payment =>
   isObj(obj) &&
   obj.amount instanceof Big &&
   isPaymentMethod(obj.method)
-

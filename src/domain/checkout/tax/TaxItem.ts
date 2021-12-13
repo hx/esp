@@ -1,9 +1,7 @@
 import Big from 'big.js'
 import {Item} from '../Cart'
-import {sum} from '../util/sum'
 
 export const isTaxItem = (obj: unknown): obj is TaxItemInterface => obj instanceof TaxItem || obj instanceof TaxItem
-
 
 export interface TaxItemInterface extends Item {
   id: number
