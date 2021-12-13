@@ -10,7 +10,7 @@ import { PaymentsView } from './PaymentsView'
 import { SummaryView } from './SummaryView'
 import { Props } from '../../components'
 
-export const OrderView: FC<Props<Order>> = ({aggregate: {projection: order}}) => {
+export const OrderView: FC<Props<Order>> = ({aggregate: {projection: order}, applyEvent}) => {
   const items    = useMemo(() => orderItems(order), [order])
   const payments = useMemo(() => orderPayments(order), [order])
   const format   = useMemo(
@@ -23,7 +23,7 @@ export const OrderView: FC<Props<Order>> = ({aggregate: {projection: order}}) =>
       <h2>Order: {order.currencyCode}</h2>
 
       <h5>Items</h5>
-      {items[0] ? <ItemsView items={items} format={format}/> : <None/>}
+      {items[0] ? <ItemsView items={items} format={format} applyEvent={applyEvent}/> : <None/>}
 
       <h5>Payments</h5>
       {payments[0] ? <PaymentsView payments={payments} format={format}/> : <None/>}

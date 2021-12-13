@@ -1,5 +1,8 @@
 .order-view {
   table.monetary {
+    a {
+      text-decoration: none;
+    }
     tr > :first-child {
       width: 2rem;
       opacity: 0.5;

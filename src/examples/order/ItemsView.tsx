@@ -1,9 +1,17 @@
 import React, { FC, useMemo } from 'react'
 import { MoneyFormatter } from './MoneyFormatter'
-import { Item, isSaleItem, isTaxItem } from './Order'
-import { orderItemSubtotal, orderItemsTotal } from './orderDerivation'
+import { Item, Order, isSaleItem } from './Order'
+import { orderItemsTotal } from './orderDerivation'
+import { SaleItemView } from './SaleItemView'
+import { ApplyEvent } from '../../components'
 
-export const ItemsView: FC<{ items: Item[], format: MoneyFormatter }> = ({items, format}) => {
+interface Props {
+  items: Item[]
+  format: MoneyFormatter
+  applyEvent: ApplyEvent<Order>
+}
+
+export const ItemsView: FC<Props> = ({items, format, applyEvent}) => {
   if (!items[0]) {
     return null
   }
@@ -22,28 +30,7 @@ export const ItemsView: FC<{ items: Item[], format: MoneyFormatter }> = ({items,
         </tr>
       </thead>
       <tbody>
-        {saleItems.map((item) => {
-          const taxItems = items.filter(i => isTaxItem(i) && i.saleItemID === item.id)
-
-          return (
-            <React.Fragment key={item.id}>
-              <tr>
-                <td className="text-end">{item.id}</td>
-                <td>{item.name}</td>
-                <td className="text-end">{format(item.amount)}</td>
-                <td className="text-end">{item.quantity}</td>
-                <td className="text-end">{format(orderItemSubtotal(item, items))}</td>
-              </tr>
-              {taxItems.map(taxItem => (
-                <tr className="small" key={taxItem.id}>
-                  <td className="text-end">{taxItem.id}</td>
-                  <td className="text-end text-muted" colSpan={3}>Tax</td>
-                  <td className="text-end">{format(orderItemSubtotal(taxItem, items))}</td>
-                </tr>
-              ))}
-            </React.Fragment>
-          )
-        })}
+        {saleItems.map((item) => <SaleItemView key={item.id} item={item} items={items} format={format} applyEvent={applyEvent}/>)}
       </tbody>
       <tfoot>
         <tr>

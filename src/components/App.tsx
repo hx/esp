@@ -18,17 +18,18 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View}
   const aggregate                   = useMemo(() => aggregates[events.length], [aggregates, events])
 
   const onEvent = useCallback((event: EventBase) => {
-    const {aggregate: newAggregate, errors} = aggregate.applyEvent(event)
+    const result = aggregate.applyEvent(event)
+    const {aggregate: newAggregate, errors} = result
     if (errors) {
       setErrors({[event.name]: errors})
-      return
     }
-    if (newAggregate) {
+    else if (newAggregate) {
       setErrors({})
       setAggregates([...aggregates.slice(0, events.length+1), newAggregate])
       setEvents([...events, event])
       setUndone([])
     }
+    return result
   }, [aggregate, events])
 
   const onHint = useCallback((event: EventBase) => {
@@ -71,7 +72,7 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View}
           />
         </div>
         <div className="right col-6">
-          <View aggregate={aggregate}/>
+          <View aggregate={aggregate} applyEvent={onEvent}/>
         </div>
       </div>
     </div>
