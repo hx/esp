@@ -1,4 +1,4 @@
 export interface InventoryEntry {
-  name: string
+  productId: string
   quantity: number
 }

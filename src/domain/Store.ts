@@ -8,22 +8,22 @@ interface StoreInventory {
 
 export function adjustInventoryLevel(inventory: StoreInventory, name: string, adjustment: number): StoreInventory {
   const onHand = inventory.onHand;
-  let index = onHand.findIndex(e => e.name === name);
+  let index = onHand.findIndex(e => e.productId === name);
   if (index === -1) {
     index = onHand.length
   }
   const item = onHand[index]
   return {
     ...inventory,
-    onHand: replaceAtIndex(onHand, index, {name, quantity: (item?.quantity || 0) + adjustment})
+    onHand: replaceAtIndex(onHand, index, {productId: name, quantity: (item?.quantity || 0) + adjustment})
   }
 }
 
 const DEFAULT_INVENTORY: StoreInventory = {
   onHand: [
-    {name: 'Apples', quantity: 100},
-    {name: 'Bananas', quantity: 100},
-    {name: 'Carrots', quantity: 100}
+    {productId: 'Apples', quantity: 100},
+    {productId: 'Bananas', quantity: 100},
+    {productId: 'Carrots', quantity: 100}
   ]
 }
 

@@ -23,7 +23,7 @@ export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) =>
   return <>
     <div className="inventory">
       <label>Inventory</label>
-      {inventory.onHand.map(entry => <InventoryItem entry={entry} key={entry.name}/>)}
+      {inventory.onHand.map(entry => <InventoryItem entry={entry} key={entry.productId}/>)}
     </div>
     <div className="cart-view pt-2">
       <h2>Cart: {cart.currencyCode}</h2>
@@ -45,10 +45,10 @@ export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) =>
 
 const None: FC = () => <p className="text-muted"><em>None.</em></p>
 
-const InventoryItem: FC<{entry: InventoryEntry}> = ({entry: {quantity, name}}) => {
+const InventoryItem: FC<{entry: InventoryEntry}> = ({entry: {quantity, productId}}) => {
   return <span className="inventory-item">
     <span className={classNames('badge', 'item-name', 'bg-secondary')}>
-      {name}
+      {productId}
     </span>
     <span className={classNames('badge', 'item-quantity', quantity ? 'text-dark' : 'text-light', quantity ? 'bg-light' : 'bg-danger')}>{quantity}</span>
     {' '}
