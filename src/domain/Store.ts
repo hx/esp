@@ -1,6 +1,8 @@
 import {CartInterface} from './checkout/Cart'
 import {InventoryEntry} from "./inventory/InventoryEntry";
 import {replaceAtIndex} from "../utilities";
+import {Catalogue} from "./catalogue/Catalogue";
+import Big from "big.js";
 
 interface StoreInventory {
   onHand: InventoryEntry[]
@@ -21,13 +23,34 @@ export function adjustInventoryLevel(inventory: StoreInventory, name: string, ad
 
 const DEFAULT_INVENTORY: StoreInventory = {
   onHand: [
-    {productId: 'Apples', quantity: 100},
-    {productId: 'Bananas', quantity: 100},
-    {productId: 'Carrots', quantity: 100}
+    {productId: 'appl', quantity: 100},
+    {productId: 'bnna', quantity: 100},
+    {productId: 'choc', quantity: 100}
+  ]
+}
+
+const DEFAULT_CATALOGUE: Catalogue = {
+  products: [
+    {
+      id: 'appl',
+      name: 'Apples',
+      prices: [{currency: 'AUD', principal: Big('1'), taxes: []}]
+    },
+    {
+      id: 'bnna',
+      name: 'Bananas',
+      prices: [{currency: 'AUD', principal: Big('1.23'), taxes: []}]
+    },
+    {
+      id: 'choc',
+      name: 'Chocolate',
+      prices: [{currency: 'AUD', principal: Big('9.0909'), taxes: [{code: 'GST', amount: Big('0.9091')}]}]
+    },
   ]
 }
 
 export class Store {
+  public catalogue: Catalogue = DEFAULT_CATALOGUE
   public cart: CartInterface
   public inventory: StoreInventory = DEFAULT_INVENTORY
 
