@@ -5,6 +5,7 @@ import { EventClassesView } from './EventClassesView'
 import { EventsView } from './EventsView'
 import { View } from './View'
 import { SavedState } from '../persistence'
+import { AppCallbacks } from './AppCallbacks'
 
 interface Props<T> {
   aggregate: Aggregate<T>
@@ -78,6 +79,19 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View,
     setUndone(remaining)
   }, [undone, events])
 
+  const reset = useCallback(() => {
+    setErrors({})
+    setEvents([])
+    setUndone([])
+    setAggregates([initialAggregate])
+  }, [initialAggregate])
+
+  const appCallbacks: AppCallbacks = {
+    undo: events[0] && undo,
+    redo: undone[0] && redo,
+    reset: (events[0] || undone[0]) && reset
+  }
+
   return (
     <div className="container-fluid">
       <div className="masthead row">
@@ -92,8 +106,7 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View,
             key={events.length}
             onEvent={onEvent}
             onHint={onHint}
-            undo={events[0] && undo}
-            redo={undone[0] && redo}
+            appCallbacks={appCallbacks}
           />
         </div>
         <div className="right col-6">

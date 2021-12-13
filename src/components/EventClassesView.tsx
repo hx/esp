@@ -1,19 +1,20 @@
 import React, { FC, useCallback, useState } from 'react'
 import { EventButtons } from './EventButtons'
 import { SelectedEventClassView } from './SelectedEventClassView'
-import { UndoRedo } from './UndoRedo'
+import { AppCallbacks } from './AppCallbacks'
 import { EventClass } from '../esp/EventClass'
 import { EventBase } from '../esp'
 import { AppButtons } from './AppButtons'
 
-interface Props extends UndoRedo {
+interface Props {
   classes: EventClass[]
   onEvent: (event: EventBase) => void
   onHint: (event: EventBase) => void
   errors: Record<string, string[]>
+  appCallbacks: AppCallbacks
 }
 
-export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, undo, redo}) => {
+export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, appCallbacks}) => {
   const [selectedClassName, setSelectedClassName] = useState('')
 
   const onSelect = setSelectedClassName
@@ -33,7 +34,7 @@ export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, u
         onHint={onHint}
       />}
       <EventButtons classes={classes} onSelect={onSelect}/>
-      <AppButtons undo={undo} redo={redo}/>
+      <AppButtons appCallbacks={appCallbacks}/>
     </>
   )
 }
