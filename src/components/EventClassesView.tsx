@@ -4,6 +4,7 @@ import { SelectedEventClassView } from './SelectedEventClassView'
 import { UndoRedo } from './UndoRedo'
 import { EventClass } from '../esp/EventClass'
 import { EventBase } from '../esp'
+import { AppButtons } from './AppButtons'
 
 interface Props extends UndoRedo {
   classes: EventClass[]
@@ -31,7 +32,8 @@ export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, u
         onCommit={onEvent}
         onHint={onHint}
       />}
-      <Buttons classes={classes} onSelect={onSelect} undo={undo} redo={redo}/>
+      <Buttons classes={classes} onSelect={onSelect}/>
+      <AppButtons undo={undo} redo={redo}/>
     </>
   )
 }
