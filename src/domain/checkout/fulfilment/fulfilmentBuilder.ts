@@ -16,7 +16,7 @@ export const buildFulfilmentLineItems = (cart: CartInterface, add: EventClassCre
 }
 
 function addFulfilment(cart: Cart, add: EventClassCreator<CartInterface>) {
-  const event = add<FulfilmentEvent>('Fulfilment', 'Fulfilment')
+  const event = add<FulfilmentEvent>('Fulfilment', 'Ship')
     .handle(({event: {args: {itemIDs, address, amount, method}}, reject}) => {
       if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(itemIDs)) {
         return reject('Item IDs should be comma-separated integers')

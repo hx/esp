@@ -1,7 +1,7 @@
 import Big from 'big.js'
 import React, { FC, useMemo } from 'react'
 import { MoneyFormatter } from '../currency/MoneyFormatter'
-import { FulfilmentInterface, SHIPPING_METHODS, Shipping } from './Shipping'
+import { SHIPPING_METHODS, Shipping } from './Shipping'
 import { CartInterface } from '../Cart'
 
 export const FulfilmentsView: FC<{ cart: CartInterface, total: Big, format: MoneyFormatter}> = ({cart, total, format}) => {
