@@ -1,5 +1,5 @@
 import classNames from 'classnames'
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react'
 import { mapToObj } from '../utilities'
 import { ArgumentView } from './ArgumentView'
 import { EventClass } from '../esp/EventClass'
@@ -20,6 +20,12 @@ export const SelectedEventClassView: FC<Props> = ({
   onHint,
   errors
 }) => {
+  const commentRef = useRef<HTMLTextAreaElement>(null)
+  const [showComment, setShowComment] = useState(false)
+  const addComment = useCallback(() => setShowComment(true), [])
+
+  useEffect(() => commentRef.current?.focus(), [showComment])
+
   const [input, setInput] = useState(mapToObj(args, arg => {
     if (arg.default !== undefined) {
       return [arg.name, arg.default]
@@ -37,7 +43,11 @@ export const SelectedEventClassView: FC<Props> = ({
     onHint(event)
   }, [input])
 
-  const commit = useCallback(() => onCommit({name, args: input}), [input])
+  const commit = useCallback(() => onCommit({
+    name,
+    args:    input,
+    comment: commentRef.current?.value?.trim() || undefined
+  }), [input])
 
   const revisedInput: typeof input = {}
   args.filter(a => a.options).forEach(arg => {
@@ -64,10 +74,21 @@ export const SelectedEventClassView: FC<Props> = ({
               <ArgumentView arg={arg} key={arg.name} value={input[arg.name]} onChange={change}/>
             )}
           </div>
-          <div className="text-end">
-            <button type="button" className="btn btn-secondary btn-sm" onClick={onCancel}>Cancel</button>
-            {' '}
-            <button type="button" className="btn btn-primary btn-sm" onClick={commit}>Commit</button>
+          {showComment &&
+          <div className="my-3">
+            <label htmlFor="comment">Comment</label>
+            <textarea id="comment" className="form-control" ref={commentRef}/>
+          </div>}
+          <div className="d-flex justify-content-between">
+            <div>
+              {!showComment &&
+                <button type="button" className="btn btn-link p-0 pt-2 btn-sm" onClick={addComment}>Add comment</button>}
+            </div>
+            <div className="text-end">
+              <button type="button" className="btn btn-secondary btn-sm" onClick={onCancel}>Cancel</button>
+              {' '}
+              <button type="button" className="btn btn-primary btn-sm" onClick={commit}>Commit</button>
+            </div>
           </div>
         </div>
       </div>

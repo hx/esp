@@ -11,4 +11,9 @@ export interface EventBase<name extends string = string, Args extends AnyArgs = 
    * Description is optional, and will be used by the GUI to represent the event.
    */
   description?: string
+
+  /**
+   * Comment is optional, and will be displayed by the GUI next to the event.
+   */
+  comment?: string
 }

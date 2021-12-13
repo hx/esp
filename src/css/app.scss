@@ -4,11 +4,13 @@
 @import "../examples/welcome/style";
 @import "../domain/checkout/style";
 
-.masthead {
-  background: black;
-  color: white;
-}
-
-.event-list .event .index {
-  width: 2.5rem
+.event-list .event {
+  .index {
+    width: 2.5rem
+  }
+  .comment {
+    font-size: 80%;
+    line-height: 1.25;
+    margin: 0.25rem 0 0.5rem 2.75rem;
+  }
 }

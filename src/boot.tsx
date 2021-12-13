@@ -4,7 +4,7 @@ import { Aggregate } from './esp'
 import { App, View } from './components'
 import { SavedState, load, save } from './persistence'
 
-export const boot = <T extends unknown>(aggregate: Aggregate<T>, view: View<T>) => {
+export const boot = <T extends unknown>(aggregate: Aggregate<T>, view: View<T>, title?: string) => {
   const container = document.getElementById('app')
   const key = view.name
   const onChange = (state: SavedState) => {
@@ -17,8 +17,11 @@ export const boot = <T extends unknown>(aggregate: Aggregate<T>, view: View<T>) 
   } catch(e) {
     initialState = load(key)
   }
+  const titleText = title || key.replace(/([^A-Z])([A-Z])/g, (_, a, b) => `${a} ${b}`)
+  document.title = 'ESP/' + titleText
   render(
     <App
+      title={titleText}
       aggregate={aggregate}
       view={view}
       initialState={initialState}
