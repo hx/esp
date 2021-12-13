@@ -5,7 +5,7 @@ import { english } from './game/i18n'
 import { legalMoves } from './game/legalMoves'
 import { Move, describeMove } from './game/Move'
 
-type MoveEvent = EventBase<'move', {
+export type MoveEvent = EventBase<'move', {
   from: Coordinate
   to: Coordinate
   promoteTo?: PieceType

@@ -5,12 +5,12 @@ import { english } from './game/i18n'
 import { describeMove } from './game/Move'
 import { Props } from '../../components'
 
-export const GameView: FC<Props<Game>> = ({aggregate: {projection}}) => {
+export const GameView: FC<Props<Game>> = ({aggregate: {projection}, applyEvent}) => {
   const lastMove = projection.playedMoves[projection.playedMoves.length - 1]
   const position = projection.positions[projection.positions.length - 1]
   return (
     <div>
-      <BoardView placement={position.placement}/>
+      <BoardView position={position} applyEvent={applyEvent}/>
       <div className="card my-3">
         <div className="card-body">
           <div className="card-title">
