@@ -1,21 +1,46 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Aggregate, EventBase } from '../esp'
 import { replaceAtIndex } from '../utilities'
 import { EventClassesView } from './EventClassesView'
 import { EventsView } from './EventsView'
 import { View } from './View'
+import { SavedState } from '../persistence'
 
 interface Props<T> {
   aggregate: Aggregate<T>
   view: View<T>
+  onChange?: (state: SavedState) => void
+  initialState?: SavedState
 }
 
-export const App = <T extends unknown>({aggregate: initialAggregate, view: View}: Props<T>) => {
-  const [aggregates, setAggregates] = useState([initialAggregate])
-  const [events, setEvents]         = useState<EventBase[]>([])
-  const [undone, setUndone]         = useState<EventBase[]>([])
+export const App = <T extends unknown>({aggregate: initialAggregate, view: View, onChange, initialState}: Props<T>) => {
+  const initialAggregates = [initialAggregate]
+  const initialEvents = initialAggregate.history.slice()
+  const initialUndone: EventBase[] = []
+
+  const [loaded, setLoaded] = useState(false)
+  if (!loaded && initialState) {
+    setLoaded(true)
+    for (const event of initialState.history) {
+      const {aggregate} = initialAggregates[initialAggregates.length - 1].applyEvent(event)
+      if (!aggregate) {
+        break
+      }
+      initialAggregates.push(aggregate)
+      initialEvents.push(event)
+    }
+  }
+
+  const [aggregates, setAggregates] = useState(initialAggregates)
+  const [events, setEvents]         = useState(initialEvents)
+  const [undone, setUndone]         = useState(initialUndone)
   const [errors, setErrors]         = useState<Record<string, string[]>>({})
   const aggregate                   = useMemo(() => aggregates[events.length], [aggregates, events])
+
+  useEffect(() => onChange?.({
+    history:     [...events, ...undone],
+    undoneCount: undone.length
+  }), [events, undone])
 
   const onEvent = useCallback((event: EventBase) => {
     const result = aggregate.applyEvent(event)
