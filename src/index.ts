@@ -8,7 +8,7 @@ import { Welcome, createNullAggregate } from './examples/welcome'
 
 const options = {
   welcome: () => boot(createNullAggregate(), Welcome),
-  chess:   () => boot(createChessGameAggregate(), GameView),
+  chess:   () => boot(createChessGameAggregate(), GameView, 'Chess'),
   order:   () => boot(createOrderAggregate({currencyCode: 'AUD'}), OrderView)
 }
 

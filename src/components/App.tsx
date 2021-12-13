@@ -12,9 +12,10 @@ interface Props<T> {
   view: View<T>
   onChange?: (state: SavedState) => void
   initialState?: SavedState
+  title?: string
 }
 
-export const App = <T extends unknown>({aggregate: initialAggregate, view: View, onChange, initialState}: Props<T>) => {
+export const App = <T extends unknown>({aggregate: initialAggregate, view: View, onChange, initialState, title}: Props<T>) => {
   const initialAggregates = [initialAggregate]
   const initialEvents = initialAggregate.history.slice()
   const initialUndone: EventBase[] = []
@@ -94,8 +95,13 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View,
 
   return (
     <div className="container-fluid">
-      <div className="masthead row">
-        <h1>Event source model prototyping.</h1>
+      <div className="masthead row py-2 bg-black text-white">
+        <div className="col-6 text-muted">
+          Event Source Prototyping
+        </div>
+        <div className="col-6 fw-bold">
+          {title || 'Untitled View'}
+        </div>
       </div>
       <div className="row">
         <div className="left col-6">
