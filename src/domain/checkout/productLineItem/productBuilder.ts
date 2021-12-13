@@ -37,7 +37,7 @@ export function addSaleItemArgument<T extends EventBase<string, { itemID: number
 
 function addItem(store: Store, add: EventClassCreator<Store>){
   const {cart, catalogue} = store
-  const event = add<AddSaleItemEvent>('addItem', 'Add item').handle(({event: {args}, reject}) => {
+  const event = add<AddSaleItemEvent>('addItem', 'Add item').handle(({event: {args}}) => {
     return {
       ...store,
       cart: cart.addItem(

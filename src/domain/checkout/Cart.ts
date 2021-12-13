@@ -5,7 +5,7 @@ import { LogicError, ValidationError } from './package'
 import { Payment, isPayment } from './payment/Payment'
 import { SaleItem, SaleItemInterface, isSaleItem } from './productLineItem/ProductLineItem'
 import { PromotionItemInterface, isPromotionItem } from './promotion/PromotionItem'
-import { TaxItemInterface, isTaxItem } from './tax/TaxItem'
+import {TaxItemInterface, isTaxItem, TaxItem} from './tax/TaxItem'
 import { sum } from './util/sum'
 import { ItemID } from './types'
 import { Shipping, isShipping } from './fulfilment/Shipping'
@@ -122,15 +122,26 @@ export class Cart implements CartInterface {
     }
 
     addItem(product: Product, quantity: number): CartInterface {
+      const price = product.prices.find(p => p.currency === this.currencyCode)!;
+      const saleItemId = this.nextItemId();
       return new Cart(
         this.currencyCode,
         [
           ...this.lines,
           new SaleItem(
-            this.nextItemId(),
+            saleItemId,
             product.id,
             quantity,
-            product.prices.find(p => p.currency === this.currencyCode)!.principal
+            price.principal
+          ),
+          ...price.taxes.map((tax, i) =>
+            new TaxItem(
+              saleItemId + i + 1,
+              saleItemId,
+              price.principal.div(tax.amount).mul(100).round(2), // display only
+              tax.code,
+              tax.amount
+            )
           )
         ]
       )
