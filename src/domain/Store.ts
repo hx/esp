@@ -21,11 +21,9 @@ export function adjustInventoryLevel(inventory: StoreInventory, name: string, ad
 
 const DEFAULT_INVENTORY: StoreInventory = {
   onHand: [
-    {name: 'Apples', quantity: 55},
-    {name: 'Bananas', quantity: 108},
-    {name: 'Carrots', quantity: 12},
-    {name: 'Eggplants', quantity: 0},
-    {name: 'Zucchinis', quantity: 5}
+    {name: 'Apples', quantity: 100},
+    {name: 'Bananas', quantity: 100},
+    {name: 'Carrots', quantity: 100}
   ]
 }
 
