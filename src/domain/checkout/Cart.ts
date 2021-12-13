@@ -108,7 +108,7 @@ export class Cart implements CartInterface {
             if (item.id != id) return item
             else return new SaleItem(
               saleItem.id,
-              saleItem.name,
+              saleItem.productId,
               quantity,
               saleItem.amount
             )

@@ -7,8 +7,16 @@ import {TaxItemInterface, getTaxItems} from '../tax/TaxItem'
 import {TaxItemsView} from '../tax/TaxItemsView'
 import {PromotionItemsView} from '../promotion/PromotionItemsView'
 import {isSaleItem} from './ProductLineItem'
+import {Catalogue} from "../../catalogue/Catalogue";
 
-export const ItemsView: FC<{ items: Item[], total: Big, format: MoneyFormatter }> = ({items, format, total}) => {
+type Props = {
+  items: Item[]
+  total: Big
+  format: MoneyFormatter
+  catalogue: Catalogue
+}
+
+export const ItemsView: FC<Props> = ({items, format, total, catalogue}) => {
   if (items.length == 0) {
     return null
   }
@@ -30,11 +38,12 @@ export const ItemsView: FC<{ items: Item[], total: Big, format: MoneyFormatter }
         {saleItems.map((item) => {
           const taxItems: TaxItemInterface[] = getTaxItems(item.id, items)
           const promotionItems: PromotionItemInterface[] = getPromotionItems(item.id, items)
+          const product = catalogue.products.find(p => p.id === item.productId)
           return (
             <React.Fragment key={item.id}>
               <tr>
                 <td className="text-end">{item.id}</td>
-                <td>{item.name}</td>
+                <td>{product?.name || item.productId}</td>
                 <td className="text-end">{format(item.amount)}</td>
                 <td className="text-end">{item.quantity}</td>
                 <td className="text-end">{format(item.total())}</td>

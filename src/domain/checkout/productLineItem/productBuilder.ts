@@ -31,7 +31,7 @@ export function addSaleItemArgument<T extends EventBase<string, { itemID: number
     'Item',
     cart.lastSaleItem().id
   ).options(
-    cart.saleItems().map(item => ({displayName: `#${item.id}. ${item.name}`, value: item.id}))
+    cart.saleItems().map(item => ({displayName: `#${item.id}. ${item.productId}`, value: item.id}))
   )
 }
 

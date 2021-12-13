@@ -22,7 +22,7 @@ export const FulfilmentsView: FC<{ cart: CartInterface, total: Big, format: Mone
         {shipments.map((shipment: Shipping) => (
           <tr key={shipment.id}>
             <td>{SHIPPING_METHODS[shipment.method]}</td>
-            <td className="text-end">{cart.findSaleItems(shipment.itemIds).map(shipment => shipment.name).join(', ')}</td>
+            <td className="text-end">{cart.findSaleItems(shipment.itemIds).map(shipment => shipment.productId).join(', ')}</td>
             <td className="text-end">{format(shipment.amount)}</td>
           </tr>
         ))}
