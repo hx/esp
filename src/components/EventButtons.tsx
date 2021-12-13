@@ -7,7 +7,7 @@ interface Props {
   onSelect: (name: string) => void
 }
 
-export const Buttons: FC<Props> = ({classes, onSelect}) => {
+export const EventButtons: FC<Props> = ({classes, onSelect}) => {
   return <div className="buttons my-2">
     {classes.map((c, i) => (
       <React.Fragment key={i}>

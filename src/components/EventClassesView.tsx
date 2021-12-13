@@ -1,5 +1,5 @@
 import React, { FC, useCallback, useState } from 'react'
-import { Buttons } from './Buttons'
+import { EventButtons } from './EventButtons'
 import { SelectedEventClassView } from './SelectedEventClassView'
 import { UndoRedo } from './UndoRedo'
 import { EventClass } from '../esp/EventClass'
@@ -32,7 +32,7 @@ export const EventClassesView: FC<Props> = ({classes, onEvent, onHint, errors, u
         onCommit={onEvent}
         onHint={onHint}
       />}
-      <Buttons classes={classes} onSelect={onSelect}/>
+      <EventButtons classes={classes} onSelect={onSelect}/>
       <AppButtons undo={undo} redo={redo}/>
     </>
   )
