@@ -9,6 +9,7 @@ import { Option } from './Option'
 import { AnyArgs } from './types'
 import { EventClassBuilder } from './EventClassBuilder'
 import { EventHandler } from './EventHandler'
+import { EventResult } from './EventResult'
 
 interface State<T> {
   history: EventBase[]
@@ -26,21 +27,22 @@ const addEventToState = <T>(state: State<T>, event: EventBase): State<T> => ({
   }
 })
 
-const applyEvent = <T>(state: State<T>, event: EventBase): Aggregate<T> => {
+const applyEvent = <T>(state: State<T>, event: EventBase): EventResult<T> => {
   const newState = {...state, eventHints: {}, history: [...state.history, event]}
   const errors: string[] = []
   const reject = (reason: string) => {
     errors.push(reason)
-    event.errors = errors
     return state.projection
   }
-  delete event.errors
   state
     .eventClasses
     .find(c => c.name === event.name)
     ?.handlers
     ?.forEach(h => newState.projection = h({event, reject, projection: newState.projection}))
-  return makeAggregateFromState(errors.length === 0 ? newState : state)
+  if (errors.length !== 0) {
+    return {errors}
+  }
+  return {aggregate: makeAggregateFromState(newState)}
 }
 
 const hintEvent = <T>(state: State<T>, event: EventBase): Aggregate<T> =>

@@ -1,5 +1,6 @@
 import { EventClass } from './EventClass'
 import { EventBase } from './EventBase'
+import { EventResult } from './EventResult'
 
 /**
  * An aggregate includes a projection, and all logic necessary to apply events to it to create subsequent aggregates.
@@ -30,5 +31,5 @@ export interface Aggregate<T> {
    * Returns a new aggregate by applying the given event. Any changes that may have been applied to event classes by
    * {@link hintEvent} will be discarded.
    */
-  applyEvent(event: EventBase): Aggregate<T>
+  applyEvent(event: EventBase): EventResult<T>
 }
