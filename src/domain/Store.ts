@@ -1,16 +1,16 @@
 import {CartInterface} from './checkout/Cart'
-import {InventoryEntry} from "./inventory/InventoryEntry";
-import {replaceAtIndex} from "../utilities";
-import {Catalogue} from "./catalogue/Catalogue";
-import Big from "big.js";
+import {InventoryEntry} from './inventory/InventoryEntry'
+import {replaceAtIndex} from '../utilities'
+import {Catalogue} from './catalogue/Catalogue'
+import Big from 'big.js'
 
 interface StoreInventory {
   onHand: InventoryEntry[]
 }
 
 export function adjustInventoryLevel(inventory: StoreInventory, name: string, adjustment: number): StoreInventory {
-  const onHand = inventory.onHand;
-  let index = onHand.findIndex(e => e.productId === name);
+  const onHand = inventory.onHand
+  let index = onHand.findIndex(e => e.productId === name)
   if (index === -1) {
     index = onHand.length
   }

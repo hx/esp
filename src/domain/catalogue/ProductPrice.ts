@@ -1,5 +1,5 @@
-import Big from "big.js";
-import {ProductTax} from "./ProductTax";
+import Big from 'big.js'
+import {ProductTax} from './ProductTax'
 
 export interface ProductPrice {
   /**
