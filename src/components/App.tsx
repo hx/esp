@@ -34,8 +34,6 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View}
     setAggregates(replaceAtIndex(aggregates, aggregates.length-1, newAggregate))
   }, [aggregate])
 
-  const {projection, eventClasses} = aggregate
-
   const undo = useCallback((steps = 1) => {
     const remaining = events.slice(0, -steps)
     const undone    = events.slice(-steps)
@@ -62,7 +60,7 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View}
           <EventsView events={events} undone={undone} undo={undo} redo={redo}/>
           <EventClassesView
             errors={errors}
-            classes={eventClasses}
+            classes={aggregate.eventClasses}
             key={events.length}
             onEvent={onEvent}
             onHint={onHint}
@@ -71,7 +69,7 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View}
           />
         </div>
         <div className="right col-6">
-          <View projection={projection}/>
+          <View aggregate={aggregate}/>
         </div>
       </div>
     </div>
