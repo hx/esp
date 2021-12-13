@@ -3,14 +3,13 @@ import {fold} from 'fp-ts/Either'
 import {EventBase, EventClassBuilder} from '../../../esp'
 import {EventClassCreator} from '../../../esp/EventClassCreator'
 import {Cart, CartInterface} from '../Cart'
-import {Store} from '../../Store'
+import {Store, newStore} from '../../Store'
 import {Product} from '../../catalogue/Product'
 import {makeFormatter} from '../currency/MoneyFormatter'
 import {sum} from '../util/sum'
 
 export type AddSaleItemEvent = EventBase<'addItem', {
-  name: string
-  price: number
+  productId: string
   quantity: number
 }>
 
@@ -39,16 +38,13 @@ export function addSaleItemArgument<T extends EventBase<string, { itemID: number
 function addItem(store: Store, add: EventClassCreator<Store>){
   const {cart, catalogue} = store
   const event = add<AddSaleItemEvent>('addItem', 'Add item').handle(({event: {args}, reject}) => {
-    return fold(
-      reject,
-      (cart: CartInterface) => new Store(cart)
-    )(
-      cart.addItem(
-        args.name.trim(),
+    return {
+      ...store,
+      cart: cart.addItem(
+        store.catalogue.products.find(p => p.id === args.productId) as Product,
         args.quantity,
-        new Big(args.price)
       )
-    )
+    }
   })
   const availableProducts = catalogue.products.filter(product => {
     const price = product.prices.find(p => p.currency === cart.currencyCode)
@@ -58,14 +54,13 @@ function addItem(store: Store, add: EventClassCreator<Store>){
     const inventoryEntry = store.inventory.onHand.find(p => p.productId === product.id)
     return inventoryEntry && inventoryEntry.quantity >= 1
   })
-  event.addArgument('name', 'Item name', `Item #${store.cart.nextItemId()}`)
+  event.addArgument('productId', 'Product', availableProducts[0]?.id)
     .options(availableProducts.map((product) => {
       return {
         displayName: formatProductAndPrice(product, store.cart.currencyCode),
         value: product.id
       }
     }))
-  event.addArgument('price', 'Price', 9.0909)
   event.addArgument('quantity', 'Quantity', 1)
 }
 
@@ -85,7 +80,7 @@ function addChangeQuantity(store: Store, add: EventClassCreator<Store>) {
   if (saleItems.length == 0) return
 
   const event = add<ChangeQuantityEvent>('changeQuantity', 'Change line quantity')
-    .handle(({event: {args}, reject}) => fold(reject,(cart: CartInterface) => new Store(cart))(
+    .handle(({event: {args}, reject}) => fold(reject,(cart: CartInterface) => newStore(cart))(
       cart.changeQuantity(
         args.itemID,
         args.quantity

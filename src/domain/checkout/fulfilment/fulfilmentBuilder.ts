@@ -3,7 +3,7 @@ import { Cart, CartInterface } from '../Cart'
 import { SHIPPING_METHODS, Shipping } from './Shipping'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
 import Big from 'big.js'
-import { Store } from '../../Store'
+import {Store, newStore} from '../../Store'
 
 type FulfilmentEvent = EventBase<'Fulfilment', {
     itemIDs: string,
@@ -24,7 +24,7 @@ function addFulfilment(store: Store, add: EventClassCreator<Store>) {
         return reject('Item IDs should be comma-separated integers')
       }
       const ids = itemIDs.trim().split(/\s*,\s*/).map(Number)
-      return new Store(
+      return newStore(
         new Cart(cart.currencyCode, [
           ...cart.lines,
           new Shipping(

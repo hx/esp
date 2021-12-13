@@ -49,22 +49,16 @@ const DEFAULT_CATALOGUE: Catalogue = {
   ]
 }
 
-export class Store {
-  public catalogue: Catalogue = DEFAULT_CATALOGUE
-  public cart: CartInterface
-  public inventory: StoreInventory = DEFAULT_INVENTORY
+export interface Store {
+  catalogue: Catalogue
+  cart: CartInterface
+  inventory: StoreInventory
+}
 
-  constructor(cart: CartInterface) {
-    this.cart = cart
-  }
-
-  /**
-   * Adjust the store's inventory level for the given product name.
-   * @param name Name of the product for which inventory level should be adjusted. If the store does not have an
-   *   inventory level for a product of this name, it will be added at zero before applying the adjustment.
-   * @param adjustment Amount by which the stock level should be adjusted. Zero is a no-op.
-   */
-  public adjustInventoryLevel(name: string, adjustment: number) {
-    this.inventory = adjustInventoryLevel(this.inventory, name, adjustment)
+export function newStore(cart: CartInterface): Store {
+  return {
+    catalogue: DEFAULT_CATALOGUE,
+    inventory: DEFAULT_INVENTORY,
+    cart
   }
 }

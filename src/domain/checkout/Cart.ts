@@ -9,6 +9,7 @@ import { TaxItemInterface, isTaxItem } from './tax/TaxItem'
 import { sum } from './util/sum'
 import { ItemID } from './types'
 import { Shipping, isShipping } from './fulfilment/Shipping'
+import {Product} from '../catalogue/Product'
 
 export interface Line {
     id: number
@@ -39,7 +40,7 @@ export interface CartInterface {
     nextItemId(): number
     nextPaymentId(): number
     changeQuantity(id: number, quantity: number): Either<LogicError, CartInterface>
-    addItem(name: string, quantity: number, amount: Big): Either<ValidationError, CartInterface>
+    addItem(product: Product, quantity: number): CartInterface
     totalPayments(): Big
     totalShipments(): Big
     totalTax(): Big
@@ -120,21 +121,18 @@ export class Cart implements CartInterface {
       return this.saleItems().length > 0
     }
 
-    addItem(name: string, quantity: number, price: Big): Either<ValidationError, CartInterface> {
-      if (name === '') return left('Name must not be blank')
-      return right(
-        new Cart(
-          this.currencyCode,
-          [
-            ...this.lines,
-            new SaleItem(
-              this.nextItemId(),
-              name,
-              quantity,
-              price
-            )
-          ]
-        )
+    addItem(product: Product, quantity: number): CartInterface {
+      return new Cart(
+        this.currencyCode,
+        [
+          ...this.lines,
+          new SaleItem(
+            this.nextItemId(),
+            product.id,
+            quantity,
+            product.prices.find(p => p.currency === this.currencyCode)!.principal
+          )
+        ]
       )
     }
 

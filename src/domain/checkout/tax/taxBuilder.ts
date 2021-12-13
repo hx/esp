@@ -3,7 +3,7 @@ import { EventBase } from '../../../esp'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
 import { Cart, CartInterface } from '../Cart'
 import { TaxItem } from './TaxItem'
-import { Store } from '../../Store'
+import {Store, newStore} from '../../Store'
 
 type TaxEvent = EventBase<'tax', {
   itemID: number
@@ -28,7 +28,7 @@ function addTax(store: Store, add: EventClassCreator<Store>) {
           Big(rate).div(100).mul(saleItem.total()),
         )
       )
-      return new Store(
+      return newStore(
         new Cart(cart.currencyCode, [
           ...cart.lines,
           ...taxItems

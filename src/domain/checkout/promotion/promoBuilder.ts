@@ -7,7 +7,7 @@ import { addSaleItemArgument } from '../productLineItem/productBuilder'
 import { SaleItemInterface } from '../productLineItem/ProductLineItem'
 import { PromotionItem } from './PromotionItem'
 import { fold } from 'fp-ts/Either'
-import { Store } from '../../Store'
+import {Store, newStore} from '../../Store'
 
 type PromotionEvent = EventBase<'promotion', {
   itemID: number
@@ -31,7 +31,7 @@ function addPromotion(store: Store, add: EventClassCreator<Store>) {
           `${format(Big(amount))} off`,
           Big(amount),
         )
-        return new Store(
+        return newStore(
           new Cart(cart.currencyCode, [
             ...cart.lines,
             promotionItem
