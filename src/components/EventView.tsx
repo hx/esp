@@ -11,7 +11,7 @@ interface Props {
 }
 
 export const EventView: FC<Props> = ({
-  event: {args, description, name},
+  event: {args, description, name, comment},
   index, muted, onEnter
 }) => {
   const enter = useCallback(() => onEnter(index), [onEnter, index])
@@ -26,6 +26,7 @@ export const EventView: FC<Props> = ({
           <EventPairs args={args}/>
         }
       </div>
+      {typeof comment === 'string' && <div className="comment">{comment}</div>}
     </div>
   )
 }
