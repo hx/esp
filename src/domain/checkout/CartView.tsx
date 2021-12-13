@@ -4,8 +4,8 @@ import { makeFormatter } from './currency/MoneyFormatter'
 import { CartInterface } from './Cart'
 import { PaymentsView } from './payment/PaymentsView'
 import { SummaryView } from './SummaryView'
-
-export const CartView: FC<{ projection: CartInterface }> = ({projection: cart}) => {
+import { Props } from '../../components'
+export const CartView: FC<Props<CartInterface>> = ({aggregate: {projection: cart}}) => {
   const items    = useMemo(() => cart.items(), [cart])
   const payments = useMemo(() => cart.payments(), [cart])
   const format   = useMemo(
