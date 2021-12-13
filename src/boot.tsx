@@ -17,9 +17,11 @@ export const boot = <T extends unknown>(aggregate: Aggregate<T>, view: View<T>, 
   } catch(e) {
     initialState = load(key)
   }
+  const titleText = title || key.replace(/([^A-Z])([A-Z])/g, (_, a, b) => `${a} ${b}`)
+  document.title = 'ESP/' + titleText
   render(
     <App
-      title={title || key.replace(/([^A-Z])([A-Z])/g, (_, a, b) => `${a} ${b}`)}
+      title={titleText}
       aggregate={aggregate}
       view={view}
       initialState={initialState}
