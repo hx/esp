@@ -37,8 +37,18 @@ export function addSaleItemArgument<T extends EventBase<string, { itemID: number
 
 function addItem(store: Store, add: EventClassCreator<Store>){
   const {cart, catalogue} = store
-  const event = add<AddSaleItemEvent>('addItem', 'Add item').handle(({event: {args}}) => {
-    const product = store.catalogue.products.find(p => p.id === args.productId) as Product;
+  const event = add<AddSaleItemEvent>('addItem', 'Add item').handle(({event: {args}, reject}) => {
+    const product = store.catalogue.products.find(p => p.id === args.productId) as Product
+    const inStock = store.inventory.onHand.find(p => p.productId === args.productId)
+    if (!product) {
+      return reject('Product not found in catalogue')
+    }
+    if (!inStock) {
+      return reject('Product not found in inventory')
+    }
+    if (inStock.quantity < args.quantity) {
+      return reject(`Insufficient stock (${inStock.quantity}/${args.quantity})`)
+    }
     return {
       ...store,
       cart: cart.addItem(
