@@ -3,6 +3,7 @@ import { Cart, CartInterface } from '../Cart'
 import { SHIPPING_METHODS, Shipping } from './Shipping'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
 import Big from 'big.js'
+import { Store } from '../../Store'
 
 type FulfilmentEvent = EventBase<'Fulfilment', {
     itemIDs: string,
@@ -11,27 +12,30 @@ type FulfilmentEvent = EventBase<'Fulfilment', {
     method: string
 }>
 
-export const buildFulfilmentLineItems = (cart: CartInterface, add: EventClassCreator<CartInterface>) => {
-  if (cart.saleItems().length > 0) addFulfilment(cart as Cart, add)
+export const buildFulfilmentLineItems = (store: Store, add: EventClassCreator<Store>) => {
+  if (store.cart.saleItems().length > 0) addFulfilment(store, add)
 }
 
-function addFulfilment(cart: Cart, add: EventClassCreator<CartInterface>) {
+function addFulfilment(store: Store, add: EventClassCreator<Store>) {
+  const cart = store.cart
   const event = add<FulfilmentEvent>('Fulfilment', 'Ship')
     .handle(({event: {args: {itemIDs, address, amount, method}}, reject}) => {
       if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(itemIDs)) {
         return reject('Item IDs should be comma-separated integers')
       }
       const ids = itemIDs.trim().split(/\s*,\s*/).map(Number)
-      return new Cart(cart.currencyCode, [
-        ...cart.lines,
-        new Shipping(
-          cart.nextItemId(),
-          method,
-          address,
-          ids,
-          new Big(amount)
-        )
-      ])
+      return new Store(
+        new Cart(cart.currencyCode, [
+          ...cart.lines,
+          new Shipping(
+            cart.nextItemId(),
+            method,
+            address,
+            ids,
+            new Big(amount)
+          )
+        ])
+      )
     })
   event.addArgument('method', 'Method').options(
     Object.entries(SHIPPING_METHODS).map(([id, name ]) => ({displayName: name, value: id}))

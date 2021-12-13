@@ -1,6 +1,7 @@
-import {EventBase} from '../../../esp'
-import {EventClassCreator} from '../../../esp/EventClassCreator'
-import {Cart, CartInterface} from '../Cart'
+import { EventBase } from '../../../esp'
+import { EventClassCreator } from '../../../esp/EventClassCreator'
+import { Cart } from '../Cart'
+import { Store } from '../../Store'
 
 export type Currency = 'AUD' | 'USD' | 'NZD' | 'GBP'
 
@@ -15,11 +16,12 @@ type SetCurrencyEvent = EventBase<'setCurrency', {
   currency: Currency
 }>
 
-export const buildCurrency = (cart: CartInterface, add: EventClassCreator<CartInterface>) => {
+export const buildCurrency = (store: Store, add: EventClassCreator<Store>) => {
+  const cart = store.cart
   if (cart.hasItems()) return
 
   add<SetCurrencyEvent>('setCurrency', 'Change currency')
-    .handle(({event}) => new Cart(event.args.currency, cart.lines))
+    .handle(({event}) => new Store(new Cart(event.args.currency, cart.lines)))
     .addArgument('currency', 'Currency')
     .options(
       Object.entries(currencyNames).map(([code, name]) => ({displayName: name, value: code as Currency}))

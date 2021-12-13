@@ -1,9 +1,9 @@
-import {Big} from 'big.js'
-import {EventBase} from '../../../esp'
-import {EventClassCreator} from '../../../esp/EventClassCreator'
-import {Cart, CartInterface} from '../Cart'
-import {makeFormatter} from '../currency/MoneyFormatter'
-import {TaxItem} from './TaxItem'
+import { Big } from 'big.js'
+import { EventBase } from '../../../esp'
+import { EventClassCreator } from '../../../esp/EventClassCreator'
+import { Cart, CartInterface } from '../Cart'
+import { TaxItem } from './TaxItem'
+import { Store } from '../../Store'
 
 type TaxEvent = EventBase<'tax', {
   itemID: number
@@ -11,12 +11,12 @@ type TaxEvent = EventBase<'tax', {
   isFraction: boolean
 }>
 
-export const buildTaxLineItems = (cart: CartInterface, add: EventClassCreator<CartInterface>) => {
-  if (cart.saleItems().length > 0) addTax(cart as Cart, add)
+export const buildTaxLineItems = (store: Store, add: EventClassCreator<Store>) => {
+  if (store.cart.saleItems().length > 0) addTax(store, add)
 }
 
-function addTax(cart: Cart, add: EventClassCreator<CartInterface>) {
-  const format = makeFormatter(cart.currencyCode)
+function addTax(store: Store, add: EventClassCreator<Store>) {
+  const cart = store.cart
   const singleItemTaxEvent = add<TaxEvent>('tax', 'Tax')
     .handle(({event: {args: {rate}}}) => {
       const taxItems = cart.saleItems().map(saleItem =>
@@ -28,10 +28,12 @@ function addTax(cart: Cart, add: EventClassCreator<CartInterface>) {
           Big(rate).div(100).mul(saleItem.total()),
         )
       )
-      return new Cart(cart.currencyCode, [
-        ...cart.lines,
-        ...taxItems
-      ])
+      return new Store(
+        new Cart(cart.currencyCode, [
+          ...cart.lines,
+          ...taxItems
+        ])
+      )
     })
   singleItemTaxEvent.addArgument('rate', 'Rate', 10)
 }

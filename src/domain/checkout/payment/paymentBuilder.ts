@@ -1,34 +1,35 @@
 import Big from 'big.js'
-import {EventBase} from '../../../esp'
-import {EventClassCreator} from '../../../esp/EventClassCreator'
-import {Cart, CartInterface} from '../Cart'
-import {PAYMENT_METHODS, Payment} from './Payment'
+import { EventBase } from '../../../esp'
+import { EventClassCreator } from '../../../esp/EventClassCreator'
+import { Cart } from '../Cart'
+import { PAYMENT_METHODS, Payment } from './Payment'
+import { Store } from '../../Store'
 
 type MakePaymentEvent = EventBase<'makePayment', {
   method: string
   amount: number
 }>
-export const buildPayment = (cart: CartInterface, add: EventClassCreator<CartInterface>) => {
-  const balance = cart.balance()
+export const buildPayment = (store: Store, add: EventClassCreator<Store>) => {
+  const balance = store.cart.balance()
   if (balance.eq(0)) return
-  addPayment(cart, balance, add)
+  addPayment(store, balance, add)
 }
 
 function addPayment(
-  cart: CartInterface,
+  store: Store,
   balance: Big,
-  add: EventClassCreator<CartInterface>
+  add: EventClassCreator<Store>
 ) {
+  const cart = store.cart
   const makePaymentEvent = add<MakePaymentEvent>('makePayment', 'Pay').handle(({event: {args}}) => {
     const [providerId, methodId] = args.method.split('.', 2)
-
     const payment: Payment = {
       id:     cart.nextPaymentId(),
       amount: new Big(args.amount),
       method: {providerId, methodId}
     }
 
-    return new Cart(cart.currencyCode, [...cart.lines, payment])
+    return new Store(new Cart(cart.currencyCode, [...cart.lines, payment]))
   })
 
   makePaymentEvent.addArgument('method', 'Method').options(

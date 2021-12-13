@@ -1,12 +1,14 @@
 import React, { FC, useMemo } from 'react'
 import { ItemsView } from './productLineItem/ItemsView'
 import { makeFormatter } from './currency/MoneyFormatter'
-import { CartInterface } from './Cart'
 import { PaymentsView } from './payment/PaymentsView'
 import { SummaryView } from './SummaryView'
 import { Props } from '../../components'
 import { FulfilmentsView } from './fulfilment/FulfilmentView'
-export const CartView: FC<Props<CartInterface>> = ({aggregate: {projection: cart}}) => {
+import { Store } from '../Store'
+
+export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) => {
+  const cart = store.cart
   const items    = useMemo(() => cart.items(), [cart])
   const payments = useMemo(() => cart.payments(), [cart])
   const format   = useMemo(
