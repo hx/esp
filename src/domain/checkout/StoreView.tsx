@@ -10,6 +10,7 @@ import classNames from 'classnames'
 import { Store } from '../Store'
 import {InventoryEntry} from '../inventory/InventoryEntry'
 import {Catalogue} from '../catalogue/Catalogue'
+import {InventoryItem} from "./InventoryItem";
 
 export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) => {
   const {cart, inventory, catalogue} = store
@@ -45,24 +46,3 @@ export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) =>
 }
 
 const None: FC = () => <p className="text-muted"><em>None.</em></p>
-
-const InventoryItem: FC<{entry: InventoryEntry, catalogue: Catalogue}> = ({entry: {quantity, productId}, catalogue: {products}}) => {
-  const product = products.find(p => p.id === productId)
-
-  return <span className="inventory-item">
-    <span className={classNames('badge', 'item-name', 'bg-secondary')}>
-      {product?.name || productId}
-    </span>
-    <span
-      className={classNames(
-        'badge',
-        'item-quantity',
-        quantity ? 'text-dark' : 'text-light',
-        quantity ? 'bg-light' : 'bg-danger'
-      )}
-    >
-      {quantity}
-    </span>
-    {' '}
-  </span>
-}
