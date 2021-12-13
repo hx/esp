@@ -3,7 +3,7 @@ import {fold} from 'fp-ts/Either'
 import {EventBase, EventClassBuilder} from '../../../esp'
 import {EventClassCreator} from '../../../esp/EventClassCreator'
 import {Cart, CartInterface} from '../Cart'
-import {Store, newStore} from '../../Store'
+import {Store, newStore, adjustInventoryLevel} from '../../Store'
 import {Product} from '../../catalogue/Product'
 import {makeFormatter} from '../currency/MoneyFormatter'
 import {sum} from '../util/sum'
@@ -38,12 +38,14 @@ export function addSaleItemArgument<T extends EventBase<string, { itemID: number
 function addItem(store: Store, add: EventClassCreator<Store>){
   const {cart, catalogue} = store
   const event = add<AddSaleItemEvent>('addItem', 'Add item').handle(({event: {args}}) => {
+    const product = store.catalogue.products.find(p => p.id === args.productId) as Product;
     return {
       ...store,
       cart: cart.addItem(
-        store.catalogue.products.find(p => p.id === args.productId) as Product,
+        product,
         args.quantity,
-      )
+      ),
+      inventory: adjustInventoryLevel(store.inventory, product.id, -args.quantity)
     }
   })
   const availableProducts = catalogue.products.filter(product => {
