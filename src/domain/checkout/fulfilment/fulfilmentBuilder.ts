@@ -24,8 +24,9 @@ function addFulfilment(store: Store, add: EventClassCreator<Store>) {
         return reject('Item IDs should be comma-separated integers')
       }
       const ids = itemIDs.trim().split(/\s*,\s*/).map(Number)
-      return newStore(
-        new Cart(cart.currencyCode, [
+      return {
+        ...store,
+        cart: new Cart(cart.currencyCode, [
           ...cart.lines,
           new Shipping(
             cart.nextItemId(),
@@ -35,7 +36,7 @@ function addFulfilment(store: Store, add: EventClassCreator<Store>) {
             new Big(amount)
           )
         ])
-      )
+      }
     })
   event.addArgument('method', 'Method').options(
     Object.entries(SHIPPING_METHODS).map(([id, name ]) => ({displayName: name, value: id}))

@@ -28,12 +28,13 @@ function addTax(store: Store, add: EventClassCreator<Store>) {
           Big(rate).div(100).mul(saleItem.total()),
         )
       )
-      return newStore(
-        new Cart(cart.currencyCode, [
+      return {
+        ...store,
+        cart: new Cart(cart.currencyCode, [
           ...cart.lines,
           ...taxItems
         ])
-      )
+      }
     })
   singleItemTaxEvent.addArgument('rate', 'Rate', 10)
 }

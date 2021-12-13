@@ -29,7 +29,10 @@ function addPayment(
       method: {providerId, methodId}
     }
 
-    return newStore(new Cart(cart.currencyCode, [...cart.lines, payment]))
+    return {
+      ...store,
+      cart: new Cart(cart.currencyCode, [...cart.lines, payment])
+    }
   })
 
   makePaymentEvent.addArgument('method', 'Method').options(
