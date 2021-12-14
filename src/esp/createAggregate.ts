@@ -95,7 +95,7 @@ const createEventClassCreator = <T>(state: State<T>, eventClasses: EventClass<T>
 
 const buildEventClasses = <T>(state: State<T>): EventClass[] => {
   const result: EventClass[] = []
-  state.applicator(state.projection, createEventClassCreator(state, result))
+  state.applicator(state.projection, createEventClassCreator(state, result), state.history)
   return result
 }
 
