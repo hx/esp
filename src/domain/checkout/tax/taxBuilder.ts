@@ -4,6 +4,8 @@ import { EventClassCreator } from '../../../esp/EventClassCreator'
 import { Store } from '../../Store'
 import { Cart } from '../Cart'
 import { TaxItem } from './TaxItem'
+import { Applicator } from '../../../esp/Applicator'
+import { TaxCalculation } from '../TaxCalculation'
 
 type TaxEvent = EventBase<'tax', {
   itemID: number
@@ -11,28 +13,30 @@ type TaxEvent = EventBase<'tax', {
   isFraction: boolean
 }>
 
-export const buildTaxLineItems = (store: Store, add: EventClassCreator<Store>) => {
-  if (store.cart.saleItems().length > 0) addTax(store, add)
+export const buildTaxLineItems: Applicator<Store> = (store, add, events) => {
+  if (store.cart.saleItems().length > 0) addTax(store, add, events)
 }
 
-function addTax(store: Store, add: EventClassCreator<Store>) {
+function addTax(store: Store, add: EventClassCreator<Store>, events: EventBase[]) {
   const cart = store.cart
   const event = add<TaxEvent>('tax', 'Tax')
     .handle(({event: {args: {rate}}}) => {
-      const taxItems = cart.saleItems().map(saleItem =>
-        new TaxItem(
-          cart.nextItemId(),
-          saleItem.id,
-          Big(rate).div(100),
-          `${rate}% Tax`,
-        )
-      )
+      // Simulate a tax calculation service lookup by applying a flat rate to every item.
+      const calc: TaxCalculation = {
+        lines: cart.saleItems().map(saleItem => ({
+          productId: saleItem.productId,
+          unitPrice: saleItem.amount,
+          quantity:  saleItem.quantity,
+          taxRate:   new Big(rate).div(100)
+        }))
+      }
       return {
         ...store,
-        cart: new Cart(cart.currencyCode, [
-          ...cart.lines,
-          ...taxItems
-        ])
+        cart: new Cart(
+          cart.currencyCode,
+          cart.lines,
+          [calc, ...cart.taxCalculations]
+        )
       }
     })
   event.addArgument('rate', 'Rate %', 10)

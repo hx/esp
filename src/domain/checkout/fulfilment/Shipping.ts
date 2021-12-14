@@ -1,5 +1,5 @@
 import { ItemID } from '../types'
-import { Item, isItem, CartInterface } from '../Cart'
+import { CartInterface, Item, isItem } from '../Cart'
 import Big from 'big.js'
 import { isObj } from '../../../utilities'
 import { SaleItemInterface } from '../productLineItem/ProductLineItem'

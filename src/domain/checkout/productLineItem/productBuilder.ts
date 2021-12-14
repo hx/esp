@@ -23,7 +23,7 @@ export const buildProductLineItems = (store: Store, add: EventClassCreator<Store
 
 export function addSaleItemArgument<T extends EventBase<string, { itemID: number }>>(
   builder: EventClassBuilder<Store, T>,
-  cart: Cart
+  cart: CartInterface
 ){
   builder.addArgument(
     'itemID',

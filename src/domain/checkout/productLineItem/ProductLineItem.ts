@@ -1,6 +1,6 @@
 import Big from 'big.js'
 import {isObj} from '../../../utilities'
-import { Item, isItem, CartInterface } from '../Cart'
+import { Item, isItem } from '../Cart'
 
 export interface SaleItemInterface extends Item {
   amount: Big

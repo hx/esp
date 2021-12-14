@@ -6,11 +6,12 @@ import { buildTaxLineItems } from './tax/taxBuilder'
 import { buildFulfilmentLineItems } from './fulfilment/fulfilmentBuilder'
 import { EventClassCreator } from '../../esp/EventClassCreator'
 import { Store } from '../Store'
+import { Applicator } from '../../esp/Applicator'
 
-export const createCartAggregate = (store: Store, add: EventClassCreator<Store>) => {
+export const createStoreAggregate: Applicator<Store> = (store, add, events) => {
   buildProductLineItems(store, add)
   buildPromotionLineItems(store, add)
-  buildTaxLineItems(store, add)
+  buildTaxLineItems(store, add, events)
   buildCurrency(store, add)
   buildFulfilmentLineItems(store, add)
   buildPayment(store, add)

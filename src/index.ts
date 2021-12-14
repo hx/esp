@@ -16,7 +16,7 @@ const options = {
   welcome:  () => boot(createNullAggregate(), Welcome),
   chess:    () => boot(createChessGameAggregate(), GameView, 'Chess'),
   order:    () => boot(createOrderAggregate({currencyCode: 'AUD'}), OrderView),
-  checkout: () => boot(createStore(new Cart('AUD', [])), StoreView),
+  checkout: () => boot(createStore(new Cart('AUD', [], [])), StoreView),
   counter:  () => boot(createCounterAggregate({}), CounterView)
 }
 

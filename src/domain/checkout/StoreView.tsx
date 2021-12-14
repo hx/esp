@@ -10,7 +10,7 @@ import classNames from 'classnames'
 import { Store } from '../Store'
 import {InventoryEntry} from '../inventory/InventoryEntry'
 import {Catalogue} from '../catalogue/Catalogue'
-import {InventoryItem} from "./InventoryItem";
+import {InventoryItem} from './InventoryItem'
 
 export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) => {
   const {cart, inventory, catalogue} = store

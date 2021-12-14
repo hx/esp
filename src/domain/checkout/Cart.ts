@@ -10,6 +10,7 @@ import { isPromotionItem, PromotionItemInterface } from './promotion/PromotionIt
 import { isTaxItem, TaxItem, TaxItemInterface } from './tax/TaxItem'
 import { ItemID } from './types'
 import { sum } from './util/sum'
+import { TaxCalculation, taxCalculationIsApplicable } from './TaxCalculation'
 
 export interface Line {
     id: number
@@ -24,6 +25,11 @@ export const isItem = (obj: unknown): obj is Item => !isPayment(obj)
 export interface CartInterface {
     currencyCode: Currency
     lines: Line[]
+
+    /**
+     * Stack of historic tax calculations. Newer calculations are at the front (index 0) of the array.
+     */
+    taxCalculations: TaxCalculation[]
 
     hasItems(): boolean
     items(): Item[]
@@ -60,7 +66,8 @@ export class Cart implements CartInterface {
 
     constructor(
       currencyCode: Currency,
-      lines: Line[]
+      lines: Line[],
+      public taxCalculations: TaxCalculation[]
     ) {
       this.currencyCode = currencyCode
       this.lines = lines
@@ -74,8 +81,22 @@ export class Cart implements CartInterface {
       return this.lines.filter(isSaleItem)
     }
 
+    private virtualItems(): Item[] {
+      const calc = this.applicableTaxCalculation()
+      if (calc) {
+        const saleItems = this.saleItems()
+        return calc.lines.map((line, index) => new TaxItem(
+          0,
+          saleItems[index].id,
+          line.taxRate,
+          `${line.taxRate.times(100).round(2)}% tax`,
+        ))
+      }
+      return []
+    }
+
     taxItems(): TaxItemInterface[] {
-      return this.lines.filter(isTaxItem)
+      return this.items().filter(isTaxItem)
     }
 
     promotionItems(): PromotionItemInterface[] {
@@ -83,7 +104,7 @@ export class Cart implements CartInterface {
     }
 
     items(): Item[] {
-      return this.lines.filter(isItem)
+      return this.lines.concat(this.virtualItems()).filter(isItem)
     }
 
     payments(): Payment[] {
@@ -113,7 +134,8 @@ export class Cart implements CartInterface {
               quantity,
               saleItem.amount
             )
-          }))
+          })),
+          this.taxCalculations
         )
       )
     }
@@ -143,7 +165,8 @@ export class Cart implements CartInterface {
               tax.code,
             )
           )
-        ]
+        ],
+        this.taxCalculations
       )
     }
 
@@ -173,9 +196,7 @@ export class Cart implements CartInterface {
     }
 
     totalPromotions(): Big {
-      const v = sum(this.promotionItems(), p => p.total(this))
-      const l = v.toString()
-      return v
+      return sum(this.promotionItems(), p => p.total(this))
     }
 
     total(): Big {
@@ -195,5 +216,9 @@ export class Cart implements CartInterface {
 
     findTaxItemsBySaleItemId(id: ItemID): TaxItemInterface[] {
       return this.items().filter(i => isTaxItem(i) && i.saleItemId === id) as TaxItemInterface[]
+    }
+
+    applicableTaxCalculation(): TaxCalculation | undefined {
+      return this.taxCalculations.find(calc => taxCalculationIsApplicable(calc, this))
     }
 }

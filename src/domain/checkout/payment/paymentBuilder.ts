@@ -3,7 +3,7 @@ import { EventBase } from '../../../esp'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
 import { Store } from '../../Store'
 import { Cart } from '../Cart'
-import { Payment, PAYMENT_METHODS } from './Payment'
+import { PAYMENT_METHODS, Payment } from './Payment'
 
 type MakePaymentEvent = EventBase<'makePayment', {
   method: string
@@ -31,7 +31,7 @@ function addPayment(
 
     return {
       ...store,
-      cart: new Cart(cart.currencyCode, [...cart.lines, payment])
+      cart: new Cart(cart.currencyCode, [...cart.lines, payment], cart.taxCalculations)
     }
   })
 

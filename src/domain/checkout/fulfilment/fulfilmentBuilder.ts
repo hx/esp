@@ -3,7 +3,7 @@ import { EventBase } from '../../../esp'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
 import { Store } from '../../Store'
 import { Cart } from '../Cart'
-import { Shipping, SHIPPING_METHODS } from './Shipping'
+import { SHIPPING_METHODS, Shipping } from './Shipping'
 
 type FulfilmentEvent = EventBase<'Fulfilment', {
     itemIDs: string,
@@ -35,7 +35,7 @@ function addFulfilment(store: Store, add: EventClassCreator<Store>) {
             ids,
             new Big(amount)
           )
-        ])
+        ], cart.taxCalculations)
       }
     })
   event.addArgument('method', 'Method').options(
