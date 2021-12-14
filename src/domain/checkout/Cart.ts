@@ -59,7 +59,6 @@ export interface CartInterface {
   totalShipments(): Big
   totalTax(): Big
   itemsTotal(): Big
-  total(): Big
   balance(): Big
 
   refunds(): Refund[]
@@ -253,14 +252,6 @@ export class Cart implements CartInterface {
     return sum(this.promotionItems(), p => p.total(this))
   }
 
-  total(): Big {
-    return sum([
-      ...this.saleItems(),
-      ...this.taxItems(),
-    ],
-    i => i.total(this)
-    ).sub(this.totalPromotions())
-  }
   itemsTotal(): Big {
     const saleItems = this.saleItems()
     return sum([
@@ -272,7 +263,7 @@ export class Cart implements CartInterface {
   }
 
   balance(): Big {
-    return this.total().add(this.totalShipments()).sub(this.totalPayments())
+    return this.itemsTotal().add(this.totalShipments()).sub(this.totalPayments())
   }
 
   findTaxItemsBySaleItemId(id: ItemID): TaxItemInterface[] {
@@ -292,7 +283,7 @@ export class Cart implements CartInterface {
   }
 
   taxableItemsAfterRefunds(): Item[] {
-    return this.refunds().reduce(this.applyRefund, this.saleItems())
+    return this.refunds().reduce(this.applyRefund, this.taxableItems())
   }
 
   applyRefund = (items: Item[], refund: Refund): Item[] => {
