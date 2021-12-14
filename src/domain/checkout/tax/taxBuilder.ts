@@ -41,7 +41,8 @@ function addTax(store: Store, add: EventClassCreator<Store>, events: EventBase[]
         cart: new Cart(
           cart.currencyCode,
           cart.lines,
-          [calc, ...cart.taxCalculations]
+          [calc, ...cart.taxCalculations],
+          cart.paid
         )
       }
     })

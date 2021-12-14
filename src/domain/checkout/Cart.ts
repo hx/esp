@@ -4,7 +4,7 @@ import { Product } from '../catalogue/Product'
 import { Currency } from './currency/currencyBuilder'
 import { Shipping, isShipping } from './fulfilment/Shipping'
 import { LogicError } from './package'
-import { Payment, isPayment } from './payment/Payment'
+import { Payment, isPayment, isRefund } from './payment/Payment'
 import { SaleItem, SaleItemInterface, isSaleItem } from './productLineItem/ProductLineItem'
 import { PromotionItemInterface, isPromotionItem } from './promotion/PromotionItem'
 import { TaxItem, TaxItemInterface, isTaxItem } from './tax/TaxItem'
@@ -20,11 +20,12 @@ export interface Item extends Line {
   total(cart: CartInterface): Big
 }
 
-export const isItem = (obj: unknown): obj is Item => !isPayment(obj)
+export const isItem = (obj: unknown): obj is Item => !isPayment(obj) && !isRefund(obj)
 
 export interface CartInterface {
   currencyCode: Currency
   lines: Line[]
+  paid: boolean
 
   /**
    * Stack of historic tax calculations. Newer calculations are at the front (index 0) of the array.
@@ -71,14 +72,17 @@ export class Cart implements CartInterface {
 
   currencyCode: Currency = 'AUD'
   lines: Line[] = []
+  paid: boolean
 
   constructor(
     currencyCode: Currency,
     lines: Line[],
-    public taxCalculations: TaxCalculation[]
+    public taxCalculations: TaxCalculation[],
+    paid: boolean
   ) {
     this.currencyCode = currencyCode
     this.lines = lines
+    this.paid = paid || (this.totalPayments().gt(0) && this.balance().eq(0))
   }
 
   shipments(): Shipping[] {
@@ -152,7 +156,8 @@ export class Cart implements CartInterface {
             saleItem.amount
           )
         })),
-        this.taxCalculations
+        this.taxCalculations,
+        this.paid
       )
     )
   }
@@ -183,7 +188,8 @@ export class Cart implements CartInterface {
           )
         )
       ],
-      this.taxCalculations
+      this.taxCalculations,
+      this.paid
     )
   }
 

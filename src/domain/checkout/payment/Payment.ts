@@ -1,6 +1,7 @@
 import Big from 'big.js'
 import {isObj} from '../../../utilities'
 import {Line} from '../Cart'
+import { Refund } from './Refund'
 
 export interface PaymentMethod {
   providerId: string
@@ -26,3 +27,9 @@ export const isPayment = (obj: unknown): obj is Payment =>
   isObj(obj) &&
   obj.amount instanceof Big &&
   isPaymentMethod(obj.method)
+
+export const isRefund = (obj: unknown): obj is Refund =>
+  isObj(obj) &&
+  obj.amount instanceof Big &&
+  Array.isArray(obj.saleItemIDs) &&
+  obj.saleItemIDs.every(i => typeof i === 'number')

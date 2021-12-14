@@ -36,7 +36,7 @@ function addPromotion(store: Store, add: EventClassCreator<Store>) {
           cart: new Cart(cart.currencyCode, [
             ...cart.lines,
             promotionItem
-          ], cart.taxCalculations)
+          ], cart.taxCalculations, cart.paid)
         }
       }
       return fold(reject, creatPromotionItem)(cart.findSaleItem(itemID))

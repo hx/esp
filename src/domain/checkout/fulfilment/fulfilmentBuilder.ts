@@ -54,7 +54,7 @@ function addFulfilment(store: Store, add: EventClassCreator<Store>) {
             ids,
             new Big(amount)
           )
-        ], cart.taxCalculations)
+        ], cart.taxCalculations, cart.paid)
       }
     })
   event.addArgument('method', 'Method').options(
