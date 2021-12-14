@@ -13,46 +13,67 @@ import { ItemID } from './types'
 import { sum } from './util/sum'
 
 export interface Line {
-    id: number
+  id: number
 }
 
 export interface Item extends Line {
-    total(cart: CartInterface): Big
+  total(cart: CartInterface): Big
 }
 
 export const isItem = (obj: unknown): obj is Item => !isPayment(obj)
 
 export interface CartInterface {
-    currencyCode: Currency
-    lines: Line[]
+  currencyCode: Currency
+  lines: Line[]
 
-    /**
-     * Stack of historic tax calculations. Newer calculations are at the front (index 0) of the array.
-     */
-    taxCalculations: TaxCalculation[]
+  /**
+   * Stack of historic tax calculations. Newer calculations are at the front (index 0) of the array.
+   */
+  taxCalculations: TaxCalculation[]
 
-    hasItems(): boolean
-    items(): Item[]
-    saleItems(): SaleItemInterface[]
-    findSaleItem(id: number): Either<string, SaleItemInterface>
-    findSaleItems(ids: ItemID[]): SaleItemInterface[]
-    findTaxItemsBySaleItemId(id: ItemID): TaxItem[]
-    hasSaleItems(): boolean
-    lastSaleItem(): SaleItemInterface
-    payments(): Payment[]
-    taxItems(): TaxItemInterface[]
-    promotionItems(): PromotionItemInterface[]
-    shipments(): Shipping[]
-    totalPromotions(): Big
-    nextItemId(): number
-    nextPaymentId(): number
-    changeQuantity(id: number, quantity: number): Either<LogicError, CartInterface>
-    addItem(product: Product, quantity: number): CartInterface
-    totalPayments(): Big
-    totalShipments(): Big
-    totalTax(): Big
-    total(): Big
-    balance(): Big
+  hasItems(): boolean
+
+  items(): Item[]
+
+  saleItems(): SaleItemInterface[]
+
+  findSaleItem(id: number): Either<string, SaleItemInterface>
+
+  findSaleItems(ids: ItemID[]): SaleItemInterface[]
+
+  findTaxItemsBySaleItemId(id: ItemID): TaxItem[]
+
+  hasSaleItems(): boolean
+
+  lastSaleItem(): SaleItemInterface
+
+  payments(): Payment[]
+
+  taxItems(): TaxItemInterface[]
+
+  promotionItems(): PromotionItemInterface[]
+
+  shipments(): Shipping[]
+
+  totalPromotions(): Big
+
+  nextItemId(): number
+
+  nextPaymentId(): number
+
+  changeQuantity(id: number, quantity: number): Either<LogicError, CartInterface>
+
+  addItem(product: Product, quantity: number): CartInterface
+
+  totalPayments(): Big
+
+  totalShipments(): Big
+
+  totalTax(): Big
+
+  total(): Big
+
+  balance(): Big
 }
 
 export class Cart implements CartInterface {
@@ -61,165 +82,164 @@ export class Cart implements CartInterface {
     return payments.length == 0 ? 1 : payments[payments.length].id + 1
   }
 
-    currencyCode: Currency = 'AUD'
-    lines: Line[] = []
+  currencyCode: Currency = 'AUD'
+  lines: Line[] = []
 
-    constructor(
-      currencyCode: Currency,
-      lines: Line[],
-      public taxCalculations: TaxCalculation[]
-    ) {
-      this.currencyCode = currencyCode
-      this.lines = lines
+  constructor(
+    currencyCode: Currency,
+    lines: Line[],
+    public taxCalculations: TaxCalculation[]
+  ) {
+    this.currencyCode = currencyCode
+    this.lines = lines
+  }
+
+  shipments(): Shipping[] {
+    return this.lines.filter(isShipping)
+  }
+
+  saleItems(): SaleItemInterface[] {
+    return this.lines.filter(isSaleItem)
+  }
+
+  private virtualItems(): Item[] {
+    const calc = this.applicableTaxCalculation()
+    if (calc) {
+      const saleItems = this.saleItems()
+      const nextId = this.nextItemId()
+      return calc.lines.map((line, index) => new TaxItem(
+        nextId + index,
+        saleItems[index].id,
+        line.taxRate,
+        `${line.taxRate.times(100).round(2)}% tax`,
+      ))
     }
+    return []
+  }
 
-    shipments(): Shipping[]{
-      return this.lines.filter(isShipping)
-    }
+  taxItems(): TaxItemInterface[] {
+    return this.items().filter(isTaxItem)
+  }
 
-    saleItems(): SaleItemInterface[] {
-      return this.lines.filter(isSaleItem)
-    }
+  promotionItems(): PromotionItemInterface[] {
+    return this.lines.filter(isPromotionItem)
+  }
 
-    private virtualItems(): Item[] {
-      const calc = this.applicableTaxCalculation()
-      if (calc) {
-        const saleItems = this.saleItems()
-        const nextId = this.nextItemId()
-        return calc.lines.map((line, index) => new TaxItem(
-          nextId + index,
-          saleItems[index].id,
-          line.taxRate,
-          `${line.taxRate.times(100).round(2)}% tax`,
-        ))
-      }
-      return []
-    }
+  items(): Item[] {
+    return this.lines.concat(this.virtualItems()).filter(isItem)
+  }
 
-    taxItems(): TaxItemInterface[] {
-      return this.items().filter(isTaxItem)
-    }
+  payments(): Payment[] {
+    return this.lines.filter(isPayment)
+  }
 
-    promotionItems(): PromotionItemInterface[] {
-      return this.lines.filter(isPromotionItem)
-    }
+  findSaleItem(id: number): Either<string, SaleItemInterface> {
+    const item = this.saleItems().find(item => item.id == id)
+    return item ? right(item) : left(`Could not find sales item with id: ${id}`)
+  }
 
-    items(): Item[] {
-      return this.lines.concat(this.virtualItems()).filter(isItem)
-    }
+  findSaleItems(ids: ItemID[]): SaleItemInterface[] {
+    return this.saleItems().filter(saleItem => ids.includes(saleItem.id))
+  }
 
-    payments(): Payment[] {
-      return this.lines.filter(isPayment)
-    }
-
-    findSaleItem(id: number): Either<string, SaleItemInterface> {
-      const item = this.saleItems().find(item => item.id == id)
-      return item ? right(item) : left(`Could not find sales item with id: ${id}`)
-    }
-
-    findSaleItems(ids: ItemID[]): SaleItemInterface[] {
-      return this.saleItems().filter(saleItem => ids.includes(saleItem.id))
-    }
-
-    changeQuantity(id: number, quantity: number): Either<LogicError, CartInterface> {
-      const saleItem = this.saleItems().find((item: SaleItemInterface) => item.id == id)
-      if (!saleItem) return left(`Could not find item with id: ${id}`)
-      return right(
-        new Cart(
-          this.currencyCode,
-          this.lines.map((item => {
-            if (item.id != id) return item
-            else return new SaleItem(
-              saleItem.id,
-              saleItem.productId,
-              quantity,
-              saleItem.amount
-            )
-          })),
-          this.taxCalculations
-        )
-      )
-    }
-
-    hasSaleItems(): boolean {
-      return this.saleItems().length > 0
-    }
-
-    addItem(product: Product, quantity: number): CartInterface {
-      const price = product.prices.find(p => p.currency === this.currencyCode)!
-      const saleItemId = this.nextItemId()
-      return new Cart(
+  changeQuantity(id: number, quantity: number): Either<LogicError, CartInterface> {
+    const saleItem = this.saleItems().find((item: SaleItemInterface) => item.id == id)
+    if (!saleItem) return left(`Could not find item with id: ${id}`)
+    return right(
+      new Cart(
         this.currencyCode,
-        [
-          ...this.lines,
-          new SaleItem(
-            saleItemId,
-            product.id,
+        this.lines.map((item => {
+          if (item.id != id) return item
+          else return new SaleItem(
+            saleItem.id,
+            saleItem.productId,
             quantity,
-            price.principal
-          ),
-          ...price.taxes.map((tax, i) =>
-            new TaxItem(
-              saleItemId + i + 1,
-              saleItemId,
-              tax.rate,
-              tax.code,
-            )
+            saleItem.amount
           )
-        ],
+        })),
         this.taxCalculations
       )
-    }
+    )
+  }
 
-    nextItemId(): number {
-      if (this.lines.length === 0) return 1
-      else return this.lines[this.lines.length - 1].id + 1
-    }
+  hasSaleItems(): boolean {
+    return this.saleItems().length > 0
+  }
 
-    lastSaleItem(): SaleItemInterface {
-      const saleItems = this.saleItems()
-      return saleItems[saleItems.length - 1]
-    }
+  addItem(product: Product, quantity: number): CartInterface {
+    const price = product.prices.find(p => p.currency === this.currencyCode)!
+    const saleItemId = this.nextItemId()
+    return new Cart(
+      this.currencyCode,
+      [
+        ...this.lines,
+        new SaleItem(
+          saleItemId,
+          product.id,
+          quantity,
+          price.principal
+        ),
+        ...price.taxes.map((tax, i) =>
+          new TaxItem(
+            saleItemId + i + 1,
+            saleItemId,
+            tax.rate,
+            tax.code,
+          )
+        )
+      ],
+      this.taxCalculations
+    )
+  }
 
-    hasItems(): boolean {
-      return this.lines.length > 0
-    }
+  nextItemId(): number {
+    if (this.lines.length === 0) return 1
+    else return this.lines[this.lines.length - 1].id + 1
+  }
 
-    totalPayments(): Big {
-      return sum(this.payments(), p => p.amount)
-    }
-    totalShipments(): Big {
-      return sum(this.shipments(), p => p.amount)
-    }
+  lastSaleItem(): SaleItemInterface {
+    const saleItems = this.saleItems()
+    return saleItems[saleItems.length - 1]
+  }
 
-    totalTax(): Big {
-      return sum(this.taxItems(), i => i.total(this))
-    }
+  hasItems(): boolean {
+    return this.lines.length > 0
+  }
 
-    totalPromotions(): Big {
-      return sum(this.promotionItems(), p => p.total(this))
-    }
+  totalPayments(): Big {
+    return sum(this.payments(), p => p.amount)
+  }
 
-    total(): Big {
-      const t = sum([
-        ...this.saleItems(),
-        ...this.taxItems(),
-      ], i => i.total(this))
-      const p = this.totalPromotions()
-      return t.sub(p)
-    }
+  totalShipments(): Big {
+    return sum(this.shipments(), p => p.amount)
+  }
 
-    balance(): Big {
-      const t = this.total()
-      const p = this.totalPayments()
-      return t.sub(p)
-    }
+  totalTax(): Big {
+    return sum(this.taxItems(), i => i.total(this))
+  }
 
-    findTaxItemsBySaleItemId(id: ItemID): TaxItemInterface[] {
-      return this.items().filter(i => isTaxItem(i) && i.saleItemId === id) as TaxItemInterface[]
-    }
+  totalPromotions(): Big {
+    return sum(this.promotionItems(), p => p.total(this))
+  }
 
-    applicableTaxCalculation(): TaxCalculation | undefined {
-      return this.taxCalculations.find(calc => taxCalculationIsApplicable(calc, this))
-    }
+  total(): Big {
+    return sum([
+      ...this.saleItems(),
+      ...this.taxItems(),
+    ],
+    i => i.total(this)
+    ).sub(this.totalPromotions())
+  }
+
+  balance(): Big {
+    return this.total().add(this.totalShipments()).sub(this.totalPayments())
+  }
+
+  findTaxItemsBySaleItemId(id: ItemID): TaxItemInterface[] {
+    return this.items().filter(i => isTaxItem(i) && i.saleItemId === id) as TaxItemInterface[]
+  }
+
+  applicableTaxCalculation(): TaxCalculation | undefined {
+    return this.taxCalculations.find(calc => taxCalculationIsApplicable(calc, this))
+  }
 }

@@ -23,7 +23,7 @@ export const FulfilmentsView: FC<{ cart: CartInterface, catalogue: Catalogue, to
       <tbody>
         {shipments.map((shipment: Shipping) => (
           <>
-            <tr key={shipment.id}>
+            <tr key={shipment.id} className='row-header'>
               <td>{shipment.id}</td>
               <td>{SHIPPING_METHODS[shipment.method]}</td>
               <td/>

@@ -32,3 +32,7 @@
     background: rgba(0, 0, 0, 0.5);
   }
 }
+
+.row-header {
+  --#{$variable-prefix}table-accent-bg: var(--#{$variable-prefix}table-striped-bg)
+}

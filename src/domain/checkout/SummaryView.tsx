@@ -15,6 +15,7 @@ export const SummaryView: FC<{cart: CartInterface, format: MoneyFormatter}> = ({
 
   const itemsTotal    = useMemo(() => cart.total(), [items])
   const promotionTotal = useMemo(() => cart.totalPromotions(), [taxItems])
+  const shippingTotal = useMemo(() => cart.totalShipments(), [taxItems])
   const taxTotal = useMemo(() => cart.totalTax(), [taxItems])
   const paymentsTotal = useMemo(() => cart.totalPayments(), [payments])
 
@@ -26,20 +27,26 @@ export const SummaryView: FC<{cart: CartInterface, format: MoneyFormatter}> = ({
     <table className="table table-striped table-sm">
       <tbody>
         <tr>
-          <th className="text-end">Total</th>
+          <th className="text-end">Items Total</th>
           <td className="text-end">{format(itemsTotal)}</td>
         </tr>
         {promotionItems[0] &&
-      <tr className="small">
-        <th className="text-end text-muted">Promotion Total</th>
-        <td className="text-end">-{format(promotionTotal)}</td>
-      </tr>
+          <tr>
+            <th className="text-end">Promotion Total</th>
+            <td className="text-end">-{format(promotionTotal)}</td>
+          </tr>
+        }
+        {shipments[0] &&
+          <tr>
+            <th className="text-end">Shipping Total</th>
+            <td className="text-end">{format(shippingTotal)}</td>
+          </tr>
         }
         {taxItems[0] &&
-      <tr className="small">
-        <th className="text-end text-muted">Includes tax</th>
-        <td className="text-end">{format(taxTotal)}</td>
-      </tr>
+          <tr className="small">
+            <th className="text-end text-muted">Includes tax</th>
+            <td className="text-end">{format(taxTotal)}</td>
+          </tr>
         }
         <tr>
           <th className="text-end">Payments total</th>
