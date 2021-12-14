@@ -13,7 +13,7 @@ export const SummaryView: FC<{cart: CartInterface, format: MoneyFormatter}> = ({
   const promotionItems = useMemo(() => cart.promotionItems(), [cart])
   const shipments = useMemo(() => cart.shipments(), [cart])
 
-  const itemsTotal    = useMemo(() => cart.total(), [items])
+  const itemsTotal    = useMemo(() => cart.itemsTotal(), [items])
   const promotionTotal = useMemo(() => cart.totalPromotions(), [taxItems])
   const shippingTotal = useMemo(() => cart.totalShipments(), [taxItems])
   const taxTotal = useMemo(() => cart.totalTax(), [taxItems])
