@@ -11,6 +11,8 @@ import { isTaxItem, TaxItem, TaxItemInterface } from './tax/TaxItem'
 import { TaxCalculation, taxCalculationIsApplicable } from './TaxCalculation'
 import { ItemID } from './types'
 import { sum } from './util/sum'
+import { Refund } from './payment/Refund'
+import { mapToObj } from '../../utilities'
 
 export interface Line {
   id: number
@@ -58,6 +60,14 @@ export interface CartInterface {
   itemsTotal(): Big
   total(): Big
   balance(): Big
+
+  refunds(): Refund[]
+
+  taxableItemsAfterRefunds(): Item[]
+
+  taxableItems(): Item[]
+
+  applyRefund: (items: Item[], refund: Refund) => Item[]
 }
 
 export class Cart implements CartInterface {
@@ -260,5 +270,64 @@ export class Cart implements CartInterface {
 
   applicableTaxCalculation(): TaxCalculation | undefined {
     return this.taxCalculations.find(calc => taxCalculationIsApplicable(calc, this))
+  }
+
+  taxableItems(): Item[] {
+    return this.lines.filter(item => isSaleItem(item) || isShipping(item)) as Array<Shipping | SaleItem>
+  }
+
+  refunds(): Refund[] {
+    return this.lines.filter(isRefund)
+  }
+
+  taxableItemsAfterRefunds(): Item[] {
+    return this.refunds().reduce(this.applyRefund, this.saleItems())
+  }
+
+  applyRefund = (items: Item[], refund: Refund): Item[] => {
+    const taxItems = this.taxItems()
+    const itemIDs =
+      refund.saleItemIDs.length === 0 ?
+        items.map(i => i.id) :
+        refund.saleItemIDs
+    const itemTotals = mapToObj(itemIDs, itemID => {
+      const item = items.find(i => i.id === itemID)
+      if (!item) {
+        throw new Error(`Invalid item ID ${itemID}`)
+      }
+      return [itemID, item.total(this).plus(sum(taxItems.filter(i => i.saleItemId === itemID), i => i.total(this)))]
+    })
+    const total = sum(Object.values(itemTotals))
+    if (total.lt(refund.amount.abs())) {
+      throw new Error('Refund exceeds sales value')
+    }
+    return items.map(item => {
+      const wholeTotal = itemTotals[item.id]
+      if (!wholeTotal) {
+        return item
+      }
+      const itemBias = wholeTotal.div(total) // Proportion of refund that should apply to this item
+      const itemRefundAmount = refund.amount.abs().mul(itemBias) // Amount to be refunded from the item
+      const itemRefundCoefficient = wholeTotal.sub(itemRefundAmount).div(wholeTotal) // Proportion of item to NOT refund
+      if (isSaleItem(item)) {
+        const newQuantity = item.quantity * itemRefundCoefficient.toNumber()
+        return new SaleItem(
+          item.id,
+          item.productId,
+          newQuantity,
+          item.amount
+        )
+      }
+      if (isShipping(item)) {
+        return new Shipping(
+          item.id,
+          item.method,
+          item.address,
+          item.itemIds,
+          item.amount.times(itemRefundCoefficient)
+        )
+      }
+      throw new Error('Unknown item type')
+    })
   }
 }
