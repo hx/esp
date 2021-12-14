@@ -35,18 +35,20 @@ export const FulfilmentsView: FC<{ cart: CartInterface, catalogue: Catalogue, to
                 <td/>
                 <td className="text-end">{format(shipment.amount)}</td>
               </tr>
-              <TaxItemsView
-                taxItems={taxItems}
-                otherItems={cart.items()}
-                format={format}
-                cart={cart}
-              />
               {cart.findSaleItems(shipment.itemIds).map(saleItem => (
                 <tr key={saleItem.id}>
                   <td></td>
-                  <td>{saleItem.id}</td>
-                  <td>{catalogue.products.find(p => p.id === saleItem.productId)!.name} x {saleItem.quantity}</td>
+                  <td className="text-muted">{saleItem.id}</td>
+                  <td className="text-end text-muted">{catalogue.products.find(p => p.id === saleItem.productId)!.name} x {saleItem.quantity}</td>
                   <td></td>
+                </tr>
+              ))}
+              {taxItems.map(taxItem => (
+                <tr className="small" key={taxItem.id}>
+                  <td></td>
+                  <td className="text-muted">{taxItem.id}</td>
+                  <td className="text-end text-muted">{taxItem.description}</td>
+                  <td className="text-end">{format(taxItem.total(cart))}</td>
                 </tr>
               ))}
             </React.Fragment>

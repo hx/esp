@@ -221,7 +221,9 @@ export class Cart implements CartInterface {
   }
 
   totalShipments(): Big {
-    return sum(this.shipments(), p => p.amount)
+    const shipments = this.shipments()
+    return sum(shipments, p => p.amount).add(
+      sum(this.findTaxItems(shipments.map(i => i.id)), t => t.total(this)))
   }
 
   totalTax(): Big {
