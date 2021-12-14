@@ -22,12 +22,19 @@ function addTax(store: Store, add: EventClassCreator<Store>, events: EventBase[]
     .handle(({event: {args: {rate}}}) => {
       // Simulate a tax calculation service lookup by applying a flat rate to every item.
       const calc: TaxCalculation = {
-        lines: cart.saleItems().map(saleItem => ({
+        productLines: cart.saleItems().map(saleItem => ({
           productId: saleItem.productId,
           unitPrice: saleItem.amount,
           quantity:  saleItem.quantity,
           taxRate:   new Big(rate).div(100)
-        }))
+        })),
+        shipmentLines: cart.shipments().map(shipment => ({
+          itemIds: shipment.itemIds,
+          amount: shipment.amount,
+          method:  shipment.method,
+          address:  shipment.address,
+          taxRate:   new Big(rate).div(100)
+        })),
       }
       return {
         ...store,

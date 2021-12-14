@@ -32,47 +32,26 @@ export interface CartInterface {
   taxCalculations: TaxCalculation[]
 
   hasItems(): boolean
-
   items(): Item[]
-
   saleItems(): SaleItemInterface[]
-
   findSaleItem(id: number): Either<string, SaleItemInterface>
-
   findSaleItems(ids: ItemID[]): SaleItemInterface[]
-
   findTaxItemsBySaleItemId(id: ItemID): TaxItem[]
-
   hasSaleItems(): boolean
-
   lastSaleItem(): SaleItemInterface
-
   payments(): Payment[]
-
   taxItems(): TaxItemInterface[]
-
   promotionItems(): PromotionItemInterface[]
-
   shipments(): Shipping[]
-
   totalPromotions(): Big
-
   nextItemId(): number
-
   nextPaymentId(): number
-
   changeQuantity(id: number, quantity: number): Either<LogicError, CartInterface>
-
   addItem(product: Product, quantity: number): CartInterface
-
   totalPayments(): Big
-
   totalShipments(): Big
-
   totalTax(): Big
-
   total(): Big
-
   balance(): Big
 }
 
@@ -107,7 +86,7 @@ export class Cart implements CartInterface {
     if (calc) {
       const saleItems = this.saleItems()
       const nextId = this.nextItemId()
-      return calc.lines.map((line, index) => new TaxItem(
+      return calc.productLines.map((line, index) => new TaxItem(
         nextId + index,
         saleItems[index].id,
         line.taxRate,

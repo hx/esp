@@ -1,7 +1,9 @@
 import Big from 'big.js'
 import { CartInterface } from './Cart'
+import { ShippingMethod } from './fulfilment/Shipping'
+import { ItemID } from './types'
 
-interface Line {
+interface ProductLine {
   /**
    * Product ID for the line.
    */
@@ -23,18 +25,37 @@ interface Line {
   taxRate: Big
 }
 
+interface ShipmentLine {
+  method: ShippingMethod
+  address: string
+  itemIds: ItemID[]
+  amount: Big;
+  taxRate: Big
+}
+
 export interface TaxCalculation {
-  lines: Line[]
+  productLines: ProductLine[]
+  shipmentLines: ShipmentLine[]
 }
 
 export function taxCalculationIsApplicable(taxCalculation: TaxCalculation, cart: CartInterface) {
-  const taxLines = taxCalculation.lines
   const saleItems = cart.saleItems()
+  const shipments = cart.shipments()
 
-  return taxLines.length === saleItems.length && taxLines.every((taxLine, index) => {
+  const productLines = taxCalculation.productLines
+  const shipmentLines = taxCalculation.shipmentLines
+  return productLines.length === saleItems.length && productLines.every((taxLine, index) => {
     const saleItem = saleItems[index]
     return taxLine.productId === saleItem.productId &&
       taxLine.unitPrice.eq(saleItem.amount) &&
       taxLine.quantity === saleItem.quantity
+  }) &&
+    shipmentLines.length === shipments.length && shipmentLines.every((taxLine, index) => {
+    const shipment = shipments[index]
+    return taxLine.method === shipment.method &&
+     taxLine.method === shipment.method &&
+     taxLine.address === shipment.address &&
+     taxLine.itemIds === shipment.itemIds &&
+      taxLine.amount.eq(shipment.amount)
   })
 }
