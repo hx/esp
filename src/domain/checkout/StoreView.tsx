@@ -13,6 +13,7 @@ export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) =>
   const {cart, inventory, catalogue} = store
   const items    = useMemo(() => cart.items(), [cart])
   const payments = useMemo(() => cart.payments(), [cart])
+  const refunds  = useMemo(() => cart.refunds(), [cart])
   const shipments = useMemo(() => cart.shipments(), [cart])
   const format   = useMemo(
     () => makeFormatter(cart.currencyCode),
@@ -34,7 +35,7 @@ export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) =>
       {shipments[0] ? <FulfilmentsView cart={cart} catalogue={catalogue} total={cart.totalShipments()} format={format} /> : <None/>}
 
       <h5>Payments</h5>
-      {payments[0] ? <PaymentsView payments={payments} total={cart.totalPayments()} format={format}/> : <None/>}
+      {payments[0] ? <PaymentsView payments={payments} refunds={refunds} total={cart.totalPayments().plus(cart.totalRefunds())} format={format}/> : <None/>}
 
       <h5>Summary</h5>
       {cart.lines[0] ? <SummaryView cart={cart} format={format}/> : <None/>}

@@ -21,7 +21,9 @@ export const SummaryView: FC<{cart: CartInterface, format: MoneyFormatter}> = ({
 
   const balance = useMemo(() => cart.balance(), [cart])
   const style = balance.eq(0) ? 'success' : balance.lt(0) ? 'warning' : 'danger'
-  const status = balance.eq(0) ? 'Paid' : balance.lt(0) ? 'Overpaid' : 'Due'
+  const status = balance.lt(0) ? 'Overpaid' : 'Due'
+
+  const refundsTotal = useMemo(() => cart.totalRefunds(), [cart.refunds()])
 
   return (
     <table className="table table-striped table-sm">
@@ -49,13 +51,19 @@ export const SummaryView: FC<{cart: CartInterface, format: MoneyFormatter}> = ({
           </tr>
         }
         <tr>
-          <th className="text-end">Payments total</th>
+          <th className="text-end">Payments Total</th>
           <td className="text-end">{format(paymentsTotal)}</td>
         </tr>
         <tr className={`text-${style}`}>
           <th className="text-end">{status}</th>
           <td className="text-end">{format(balance.abs())}</td>
         </tr>
+        {!refundsTotal.eq(0) &&
+          <tr className="text-danger">
+            <th className="text-end">Refunds Total</th>
+            <td className="text-end">{format(refundsTotal)}</td>
+          </tr>
+        }
       </tbody>
     </table>
   )
