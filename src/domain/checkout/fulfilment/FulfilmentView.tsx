@@ -32,7 +32,7 @@ export const FulfilmentsView: FC<{ cart: CartInterface, catalogue: Catalogue, to
               <tr className="row-header">
                 <td>{shipment.id}</td>
                 <td>{SHIPPING_METHODS[shipment.method]}</td>
-                <td/>
+                <td className="text-muted">{shipment.address}</td>
                 <td className="text-end">{format(shipment.amount)}</td>
               </tr>
               {cart.findSaleItems(shipment.itemIds).map(saleItem => (
