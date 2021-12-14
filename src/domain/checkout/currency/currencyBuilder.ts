@@ -21,7 +21,7 @@ export const buildCurrency = (store: Store, add: EventClassCreator<Store>) => {
   if (cart.hasItems()) return
 
   add<SetCurrencyEvent>('setCurrency', 'Change currency')
-    .handle(({event}) => ({...store, cart: new Cart(event.args.currency, cart.lines, cart.taxCalculations)}))
+    .handle(({event}) => ({...store, cart: new Cart(event.args.currency, cart.lines, cart.taxCalculations, cart.paid)}))
     .addArgument('currency', 'Currency')
     .options(
       Object.entries(currencyNames).map(([code, name]) => ({displayName: name, value: code as Currency}))

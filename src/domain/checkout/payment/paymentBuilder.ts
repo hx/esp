@@ -31,7 +31,7 @@ function addPayment(
 
     return {
       ...store,
-      cart: new Cart(cart.currencyCode, [...cart.lines, payment], cart.taxCalculations)
+      cart: new Cart(cart.currencyCode, [...cart.lines, payment], cart.taxCalculations, cart.paid)
     }
   })
 

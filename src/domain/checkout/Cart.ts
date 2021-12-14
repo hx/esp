@@ -25,6 +25,7 @@ export const isItem = (obj: unknown): obj is Item => !isPayment(obj)
 export interface CartInterface {
   currencyCode: Currency
   lines: Line[]
+  paid: boolean
 
   /**
    * Stack of historic tax calculations. Newer calculations are at the front (index 0) of the array.
@@ -88,7 +89,8 @@ export class Cart implements CartInterface {
   constructor(
     currencyCode: Currency,
     lines: Line[],
-    public taxCalculations: TaxCalculation[]
+    public taxCalculations: TaxCalculation[],
+    public paid: boolean
   ) {
     this.currencyCode = currencyCode
     this.lines = lines
@@ -157,7 +159,8 @@ export class Cart implements CartInterface {
             saleItem.amount
           )
         })),
-        this.taxCalculations
+        this.taxCalculations,
+        this.paid
       )
     )
   }
@@ -188,7 +191,8 @@ export class Cart implements CartInterface {
           )
         )
       ],
-      this.taxCalculations
+      this.taxCalculations,
+      this.paid
     )
   }
 
