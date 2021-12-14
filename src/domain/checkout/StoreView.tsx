@@ -1,16 +1,13 @@
 import React, { FC, useMemo } from 'react'
-import { ItemsView } from './productLineItem/ItemsView'
-import { makeFormatter } from './currency/MoneyFormatter'
-import { PaymentsView } from './payment/PaymentsView'
-import { SummaryView } from './SummaryView'
 import { Props } from '../../components'
-import { FulfilmentsView } from './fulfilment/FulfilmentView'
-import classNames from 'classnames'
 
 import { Store } from '../Store'
-import {InventoryEntry} from '../inventory/InventoryEntry'
-import {Catalogue} from '../catalogue/Catalogue'
-import {InventoryItem} from './InventoryItem'
+import { makeFormatter } from './currency/MoneyFormatter'
+import { FulfilmentsView } from './fulfilment/FulfilmentView'
+import { InventoryItem } from './InventoryItem'
+import { PaymentsView } from './payment/PaymentsView'
+import { ItemsView } from './productLineItem/ItemsView'
+import { SummaryView } from './SummaryView'
 
 export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) => {
   const {cart, inventory, catalogue} = store
@@ -33,8 +30,8 @@ export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) =>
       <h5>Items</h5>
       {items[0] ? <ItemsView items={items} cart = {cart} format={format} catalogue={catalogue}/> : <None/>}
 
-      <h5>Fulfilments</h5>
-      {shipments[0] ? <FulfilmentsView cart={cart} total={cart.totalShipments()} format={format} /> : <None/>}
+      <h5>Shipping</h5>
+      {shipments[0] ? <FulfilmentsView cart={cart} catalogue={catalogue} total={cart.totalShipments()} format={format} /> : <None/>}
 
       <h5>Payments</h5>
       {payments[0] ? <PaymentsView payments={payments} total={cart.totalPayments()} format={format}/> : <None/>}
