@@ -5,7 +5,7 @@ import { Store } from '../../Store'
 import { Cart } from '../Cart'
 import { SHIPPING_METHODS, Shipping } from './Shipping'
 
-type FulfilmentEvent = EventBase<'Fulfilment', {
+type FulfilmentEvent = EventBase<'shipping', {
     itemIDs: string,
     address: string
     amount: number,
@@ -20,7 +20,7 @@ function addFulfilment(store: Store, add: EventClassCreator<Store>) {
   const cart = store.cart
   const saleItems = cart.saleItems()
   const unShippedItems = saleItems.filter(i => !cart.shipments().flatMap(s => s.itemIds).includes(i.id))
-  const event = add<FulfilmentEvent>('Fulfilment', 'Ship')
+  const event = add<FulfilmentEvent>('shipping', 'Ship')
     .handle(({event: {args: {itemIDs, address, amount, method}}, reject}) => {
       if (!/^\s*\d+(\s*,\s*\d+)*\s*$/.test(itemIDs)) {
         return reject('Item IDs should be comma-separated integers')
