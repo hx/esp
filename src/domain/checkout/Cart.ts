@@ -35,6 +35,8 @@ export interface CartInterface {
   items(): Item[]
   saleItems(): SaleItemInterface[]
   findSaleItem(id: number): Either<string, SaleItemInterface>
+  findTaxableItem(id: number): Item
+  findTaxableItems(): Item[]
   findSaleItems(ids: ItemID[]): SaleItemInterface[]
   findTaxItemsBySaleItemId(id: ItemID): TaxItem[]
   hasSaleItems(): boolean
@@ -56,6 +58,12 @@ export interface CartInterface {
 }
 
 export class Cart implements CartInterface {
+  findTaxableItem(id: number): Item {
+    return this.saleItems().find(s => s.id = id) || this.findTaxableItem(id)
+  }
+  findTaxableItems(): Item[] {
+    return [... this.saleItems(), ...this.shipments()]
+  }
   nextPaymentId(): number {
     const payments = this.payments()
     return payments.length == 0 ? 1 : payments[payments.length].id + 1
@@ -85,13 +93,21 @@ export class Cart implements CartInterface {
     const calc = this.applicableTaxCalculation()
     if (calc) {
       const saleItems = this.saleItems()
+      const shipments = this.shipments()
       const nextId = this.nextItemId()
-      return calc.productLines.map((line, index) => new TaxItem(
+      return [... calc.productLines.map((line, index) => new TaxItem(
         nextId + index,
         saleItems[index].id,
         line.taxRate,
         `${line.taxRate.times(100).round(2)}% tax`,
-      ))
+      )),
+      ...calc.shipmentLines.map((line, index) => new TaxItem(
+        calc.productLines.length + nextId + index,
+        shipments[index].id,
+        line.taxRate,
+        `${line.taxRate.times(100).round(2)}% tax`,
+      )),
+      ]
     }
     return []
   }

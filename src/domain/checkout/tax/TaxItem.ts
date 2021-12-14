@@ -30,10 +30,7 @@ export class TaxItem implements TaxItemInterface {
   }
 
   public total(cart: CartInterface): Big {
-    return fold(
-      () => zero,
-      (saleItem: SaleItemInterface) => saleItem.total(cart).mul(this.rate)
-    )(cart.findSaleItem(this.saleItemId))
+    return cart.findTaxableItem(this.saleItemId).total(cart).mul(this.rate)
   }
 }
 

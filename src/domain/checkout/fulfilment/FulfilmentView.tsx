@@ -3,6 +3,10 @@ import React, { FC, useMemo } from 'react'
 import { Catalogue } from '../../catalogue/Catalogue'
 import { CartInterface } from '../Cart'
 import { MoneyFormatter } from '../currency/MoneyFormatter'
+import { getPromotionItems, PromotionItemInterface } from '../promotion/PromotionItem'
+import { PromotionItemsView } from '../promotion/PromotionItemsView'
+import { getTaxItems, TaxItemInterface } from '../tax/TaxItem'
+import { TaxItemsView } from '../tax/TaxItemsView'
 import { SHIPPING_METHODS, Shipping } from './Shipping'
 
 export const FulfilmentsView: FC<{ cart: CartInterface, catalogue: Catalogue, total: Big, format: MoneyFormatter}> = ({cart, total, catalogue, format}) => {
@@ -21,25 +25,33 @@ export const FulfilmentsView: FC<{ cart: CartInterface, catalogue: Catalogue, to
         </tr>
       </thead>
       <tbody>
-        {shipments.map((shipment: Shipping) => (
-          <>
-            <tr key={shipment.id} className='row-header'>
-              <td>{shipment.id}</td>
-              <td>{SHIPPING_METHODS[shipment.method]}</td>
-              <td/>
-              <td className="text-end">{format(shipment.amount)}</td>
-            </tr>
-            {cart.findSaleItems(shipment.itemIds).map(saleItem => (
-              <tr key="${shipment.id}-${product.id}">
-                <td></td>
-                <td>{saleItem.id}</td>
-                <td>{catalogue.products.find(p => p.id === saleItem.productId)!.name} x {saleItem.quantity}</td>
-                <td></td>
+        {shipments.map((shipment: Shipping) => {
+          const taxItems = getTaxItems(shipment.id, cart.items())
+          return (
+            <>
+              <tr key={shipment.id} className="row-header">
+                <td>{shipment.id}</td>
+                <td>{SHIPPING_METHODS[shipment.method]}</td>
+                <td/>
+                <td className="text-end">{format(shipment.amount)}</td>
               </tr>
-            ))}
-          </>
-        ))}
-
+              <TaxItemsView
+                taxItems={taxItems}
+                otherItems={cart.items()}
+                format={format}
+                cart={cart}
+              />
+              {cart.findSaleItems(shipment.itemIds).map(saleItem => (
+                <tr key="${shipment.id}-${product.id}">
+                  <td></td>
+                  <td>{saleItem.id}</td>
+                  <td>{catalogue.products.find(p => p.id === saleItem.productId)!.name} x {saleItem.quantity}</td>
+                  <td></td>
+                </tr>
+              ))}
+            </>
+          )
+        })}
       </tbody>
       <tfoot>
         <tr>

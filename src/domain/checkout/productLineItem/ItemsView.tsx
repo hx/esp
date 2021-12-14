@@ -21,7 +21,7 @@ export const ItemsView: FC<Props> = ({items, format, cart, catalogue}) => {
   }
 
   const saleItems = useMemo(() => items.filter(isSaleItem), [items])
-
+  console.log(cart.items())
   return (
     <table className="table table-striped table-sm monetary">
       <thead>
