@@ -23,13 +23,19 @@ export const App = <T extends unknown>({aggregate: initialAggregate, view: View,
   const [loaded, setLoaded] = useState(false)
   if (!loaded && initialState) {
     setLoaded(true)
-    for (const event of initialState.history) {
+    const {history, undoneCount} = initialState
+    const notUndoneCount = history.length - undoneCount
+    for (const event of history) {
       const {aggregate} = initialAggregates[initialAggregates.length - 1].applyEvent(event)
       if (!aggregate) {
         break
       }
       initialAggregates.push(aggregate)
-      initialEvents.push(event)
+      if (initialEvents.length < notUndoneCount) {
+        initialEvents.push(event)
+      } else {
+        initialUndone.push(event)
+      }
     }
   }
 
