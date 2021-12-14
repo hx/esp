@@ -3,7 +3,6 @@ import { EventBase } from '../../../esp'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
 import { Store } from '../../Store'
 import { Cart } from '../Cart'
-import { TaxItem } from './TaxItem'
 import { Applicator } from '../../../esp/Applicator'
 import { TaxCalculation } from '../TaxCalculation'
 

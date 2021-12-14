@@ -28,6 +28,8 @@ function addFulfilment(store: Store, add: EventClassCreator<Store>) {
       const ids = itemIDs.trim().split(/\s*,\s*/).map(Number)
       const saleItemIds = saleItems.map(s => s.id)
       const unShippedItemIds = unShippedItems.map(s => s.id)
+      const validatedIds: number[] = []
+      const duplicatedIds: number[] = []
       ids.forEach((id) => {
         if (!saleItemIds.includes(id)) {
           return reject(`Item ${id} does not exist`)
@@ -35,6 +37,11 @@ function addFulfilment(store: Store, add: EventClassCreator<Store>) {
         if (!unShippedItemIds.includes(id)) {
           return reject(`Item ${id} is already assigned to shipment ` + cart.shipments().find(s => s.itemIds.includes(id))!.id)
         }
+        if (validatedIds.includes(id) && !duplicatedIds.includes(id)) {
+          duplicatedIds.push(id)
+          return reject(`Item ${id} cannot be shipped more than once `)
+        }
+        validatedIds.push(id)
       })
       return {
         ...store,
