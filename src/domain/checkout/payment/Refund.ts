@@ -3,7 +3,7 @@ import { Line } from '../Cart'
 
 export interface Refund extends Line {
   /**
-   * Total amount refunded, in major units (e.g. dollars).
+   * Total amount credited (i.e. negative value of refund), in major units (e.g. dollars).
    */
   amount: Big
 
