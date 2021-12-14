@@ -85,8 +85,9 @@ export class Cart implements CartInterface {
       const calc = this.applicableTaxCalculation()
       if (calc) {
         const saleItems = this.saleItems()
+        const nextId = this.nextItemId()
         return calc.lines.map((line, index) => new TaxItem(
-          0,
+          nextId + index,
           saleItems[index].id,
           line.taxRate,
           `${line.taxRate.times(100).round(2)}% tax`,
