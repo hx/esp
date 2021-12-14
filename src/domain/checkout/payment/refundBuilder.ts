@@ -18,9 +18,9 @@ export const buildRefund: Applicator<Store> = (store, add) => {
         return reject('Item IDs should be comma-separated integers')
       }
       const ids = itemIDs === '' ? [] : itemIDs.trim().split(/\s*,\s*/).map(Number)
-      const refund: Refund = {id: 0, amount: new Big(amount), saleItemIDs: ids}
+      const refund: Refund = {id: cart.nextPaymentId(), amount: new Big(amount).times(-1), saleItemIDs: ids}
       try {
-        cart.applyRefund(cart.taxableItems(), refund)
+        cart.applyRefund(cart.taxableItemsAfterRefunds(), refund)
       } catch(e) {
         return reject(String(e))
       }

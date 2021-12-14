@@ -2,8 +2,16 @@ import Big from 'big.js'
 import React, { FC } from 'react'
 import { MoneyFormatter } from '../currency/MoneyFormatter'
 import { Payment } from './Payment'
+import { Refund } from './Refund'
 
-export const PaymentsView: FC<{ payments: Payment[], total: Big, format: MoneyFormatter}> = ({payments, total, format}) => {
+interface Props {
+  payments: Payment[]
+  refunds: Refund[]
+  total: Big
+  format: MoneyFormatter
+}
+
+export const PaymentsView: FC<Props> = ({payments, total, format, refunds}) => {
   if (!payments[0]) {
     return null
   }
@@ -22,6 +30,13 @@ export const PaymentsView: FC<{ payments: Payment[], total: Big, format: MoneyFo
           <tr key={id}>
             <td className="text-end">{id}</td>
             <td>{methodId} <span className="text-muted">({providerId})</span></td>
+            <td className="text-end">{format(amount)}</td>
+          </tr>
+        ))}
+        {refunds.map(({amount, id}) => (
+          <tr key={id} className="text-danger">
+            <td className="text-end">{id}</td>
+            <td>Refund</td>
             <td className="text-end">{format(amount)}</td>
           </tr>
         ))}

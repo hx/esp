@@ -55,6 +55,7 @@ export interface CartInterface {
   changeQuantity(id: number, quantity: number): Either<LogicError, CartInterface>
   addItem(product: Product, quantity: number): CartInterface
   totalPayments(): Big
+  totalRefunds(): Big
   totalShipments(): Big
   totalTax(): Big
   itemsTotal(): Big
@@ -82,8 +83,12 @@ export class Cart implements CartInterface {
     return [... this.saleItems(), ...this.shipments()]
   }
   nextPaymentId(): number {
+    const refunds = this.refunds()
+    if (refunds[0]) {
+      return refunds[refunds.length - 1].id + 1
+    }
     const payments = this.payments()
-    return payments.length == 0 ? 1 : payments[payments.length].id + 1
+    return payments.length == 0 ? 1 : payments[payments.length - 1].id + 1
   }
 
   currencyCode: Currency = 'AUD'
@@ -228,6 +233,10 @@ export class Cart implements CartInterface {
 
   totalPayments(): Big {
     return sum(this.payments(), p => p.amount)
+  }
+
+  totalRefunds(): Big {
+    return sum(this.refunds(), r => r.amount)
   }
 
   totalShipments(): Big {
