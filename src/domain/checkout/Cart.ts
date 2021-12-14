@@ -4,7 +4,7 @@ import { Product } from '../catalogue/Product'
 import { Currency } from './currency/currencyBuilder'
 import { Shipping, isShipping } from './fulfilment/Shipping'
 import { LogicError } from './package'
-import { Payment, isPayment } from './payment/Payment'
+import { Payment, isPayment, isRefund } from './payment/Payment'
 import { SaleItem, SaleItemInterface, isSaleItem } from './productLineItem/ProductLineItem'
 import { PromotionItemInterface, isPromotionItem } from './promotion/PromotionItem'
 import { TaxItem, TaxItemInterface, isTaxItem } from './tax/TaxItem'
@@ -20,7 +20,7 @@ export interface Item extends Line {
   total(cart: CartInterface): Big
 }
 
-export const isItem = (obj: unknown): obj is Item => !isPayment(obj)
+export const isItem = (obj: unknown): obj is Item => !isPayment(obj) && !isRefund(obj)
 
 export interface CartInterface {
   currencyCode: Currency
