@@ -67,7 +67,7 @@ export const ItemsView: FC<Props> = ({items, format, cart, catalogue}) => {
         <tr>
           <td/>
           <th colSpan={3} className="text-end">Items total</th>
-          <th className="text-end">{format(cart.total())}</th>
+          <th className="text-end">{format(cart.itemsTotal())}</th>
         </tr>
       </tfoot>
     </table>

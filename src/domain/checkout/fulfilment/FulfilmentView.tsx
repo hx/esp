@@ -28,8 +28,8 @@ export const FulfilmentsView: FC<{ cart: CartInterface, catalogue: Catalogue, to
         {shipments.map((shipment: Shipping) => {
           const taxItems = getTaxItems(shipment.id, cart.items())
           return (
-            <>
-              <tr key={shipment.id} className="row-header">
+            <React.Fragment key={shipment.id}>
+              <tr className="row-header">
                 <td>{shipment.id}</td>
                 <td>{SHIPPING_METHODS[shipment.method]}</td>
                 <td/>
@@ -42,14 +42,14 @@ export const FulfilmentsView: FC<{ cart: CartInterface, catalogue: Catalogue, to
                 cart={cart}
               />
               {cart.findSaleItems(shipment.itemIds).map(saleItem => (
-                <tr key="${shipment.id}-${product.id}">
+                <tr key={saleItem.id}>
                   <td></td>
                   <td>{saleItem.id}</td>
                   <td>{catalogue.products.find(p => p.id === saleItem.productId)!.name} x {saleItem.quantity}</td>
                   <td></td>
                 </tr>
               ))}
-            </>
+            </React.Fragment>
           )
         })}
       </tbody>
