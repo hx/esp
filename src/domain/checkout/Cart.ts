@@ -85,15 +85,17 @@ export class Cart implements CartInterface {
 
   currencyCode: Currency = 'AUD'
   lines: Line[] = []
+  paid: boolean
 
   constructor(
     currencyCode: Currency,
     lines: Line[],
     public taxCalculations: TaxCalculation[],
-    public paid: boolean
+    paid: boolean
   ) {
     this.currencyCode = currencyCode
     this.lines = lines
+    this.paid = paid || (this.totalPayments().gt(0) && this.balance().eq(0))
   }
 
   shipments(): Shipping[] {
