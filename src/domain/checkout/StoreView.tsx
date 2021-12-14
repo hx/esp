@@ -31,7 +31,7 @@ export const StoreView: FC<Props<Store>> = ({aggregate: {projection: store}}) =>
       <h2>Cart: {cart.currencyCode}</h2>
 
       <h5>Items</h5>
-      {items[0] ? <ItemsView items={items} total = {cart.total()} format={format} catalogue={catalogue}/> : <None/>}
+      {items[0] ? <ItemsView items={items} cart = {cart} format={format} catalogue={catalogue}/> : <None/>}
 
       <h5>Fulfilments</h5>
       {shipments[0] ? <FulfilmentsView cart={cart} total={cart.totalShipments()} format={format} /> : <None/>}

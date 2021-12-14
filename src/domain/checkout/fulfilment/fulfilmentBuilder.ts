@@ -1,9 +1,9 @@
-import { EventBase } from '../../../esp'
-import { Cart, CartInterface } from '../Cart'
-import { SHIPPING_METHODS, Shipping } from './Shipping'
-import { EventClassCreator } from '../../../esp/EventClassCreator'
 import Big from 'big.js'
-import {Store, newStore} from '../../Store'
+import { EventBase } from '../../../esp'
+import { EventClassCreator } from '../../../esp/EventClassCreator'
+import { Store } from '../../Store'
+import { Cart } from '../Cart'
+import { Shipping, SHIPPING_METHODS } from './Shipping'
 
 type FulfilmentEvent = EventBase<'Fulfilment', {
     itemIDs: string,

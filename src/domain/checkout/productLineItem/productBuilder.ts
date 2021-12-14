@@ -1,12 +1,11 @@
-import {Big} from 'big.js'
-import {fold} from 'fp-ts/Either'
-import {EventBase, EventClassBuilder} from '../../../esp'
-import {EventClassCreator} from '../../../esp/EventClassCreator'
-import {Cart, CartInterface} from '../Cart'
-import {Store, newStore, adjustInventoryLevel} from '../../Store'
-import {Product} from '../../catalogue/Product'
-import {makeFormatter} from '../currency/MoneyFormatter'
-import {sum} from '../util/sum'
+import { fold } from 'fp-ts/Either'
+import { EventBase, EventClassBuilder } from '../../../esp'
+import { EventClassCreator } from '../../../esp/EventClassCreator'
+import { Product } from '../../catalogue/Product'
+import { Store, adjustInventoryLevel } from '../../Store'
+import { Cart, CartInterface } from '../Cart'
+import { makeFormatter } from '../currency/MoneyFormatter'
+import { sum } from '../util/sum'
 
 export type AddSaleItemEvent = EventBase<'addItem', {
   productId: string
@@ -38,7 +37,7 @@ export function addSaleItemArgument<T extends EventBase<string, { itemID: number
 function addItem(store: Store, add: EventClassCreator<Store>){
   const {cart, catalogue} = store
   const event = add<AddSaleItemEvent>('addItem', 'Add item').handle(({event: {args}, reject}) => {
-    const product = store.catalogue.products.find(p => p.id === args.productId) as Product
+    const product = store.catalogue.products.find(p => p.id === args.productId)
     const inStock = store.inventory.onHand.find(p => p.productId === args.productId)
     if (!product) {
       return reject('Product not found in catalogue')
@@ -79,7 +78,7 @@ function addItem(store: Store, add: EventClassCreator<Store>){
 function formatProductAndPrice(product: Product, currency: string): string {
   const format = makeFormatter(currency)
   const price = product.prices.find(p => p.currency === currency)!
-  let result = `${product.name} (${format(price.principal.add(sum(price.taxes.map(t => t.amount))))}`
+  let result = `${product.name} (${format(price.principal.add(sum(price.taxes.map(t => t.rate))))}`
   if (price.taxes[0]) {
     result += ' inc tax'
   }
@@ -92,12 +91,34 @@ function addChangeQuantity(store: Store, add: EventClassCreator<Store>) {
   if (saleItems.length == 0) return
 
   const event = add<ChangeQuantityEvent>('changeQuantity', 'Change line quantity')
-    .handle(({event: {args}, reject}) => fold(reject,(cart: CartInterface) => newStore(cart))(
-      cart.changeQuantity(
-        args.itemID,
-        args.quantity
+    .handle(({event: {args}, reject}) => {
+      const saleItem = cart.saleItems().find(i => i.id == args.itemID)!
+      const product = store.catalogue.products.find(p => p.id === saleItem.productId)
+      const inStock = store.inventory.onHand.find(p => p.productId === saleItem.productId)
+      if (!product) {
+        return reject('Product not found in catalogue')
+      }
+      if (!inStock) {
+        return reject('Product not found in inventory')
+      }
+      const adjustment = saleItem.quantity - args.quantity
+      if (inStock.quantity + adjustment < 0) {
+        return reject(`Insufficient stock (${inStock.quantity}/${-adjustment})`)
+      }
+      return fold(reject, (cart: CartInterface) => {
+        return (
+          {
+            ...store,
+            cart: cart,
+            inventory: adjustInventoryLevel(store.inventory, saleItem.productId, adjustment)
+          })
+      })(
+        cart.changeQuantity(
+          args.itemID,
+          args.quantity
+        )
       )
-    ))
+    })
 
   addSaleItemArgument(event, cart)
   const lastSaleItem = saleItems[saleItems.length - 1]

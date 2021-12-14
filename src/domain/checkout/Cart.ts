@@ -1,22 +1,22 @@
 import Big from 'big.js'
 import { Either, left, right } from 'fp-ts/Either'
+import { Product } from '../catalogue/Product'
 import { Currency } from './currency/currencyBuilder'
-import { LogicError, ValidationError } from './package'
-import { Payment, isPayment } from './payment/Payment'
-import { SaleItem, SaleItemInterface, isSaleItem } from './productLineItem/ProductLineItem'
-import { PromotionItemInterface, isPromotionItem } from './promotion/PromotionItem'
-import {TaxItemInterface, isTaxItem, TaxItem} from './tax/TaxItem'
-import { sum } from './util/sum'
+import { isShipping, Shipping } from './fulfilment/Shipping'
+import { LogicError } from './package'
+import { isPayment, Payment } from './payment/Payment'
+import { isSaleItem, SaleItem, SaleItemInterface } from './productLineItem/ProductLineItem'
+import { isPromotionItem, PromotionItemInterface } from './promotion/PromotionItem'
+import { isTaxItem, TaxItem, TaxItemInterface } from './tax/TaxItem'
 import { ItemID } from './types'
-import { Shipping, isShipping } from './fulfilment/Shipping'
-import {Product} from '../catalogue/Product'
+import { sum } from './util/sum'
 
 export interface Line {
     id: number
 }
 
 export interface Item extends Line {
-    total(): Big
+    total(cart: CartInterface): Big
 }
 
 export const isItem = (obj: unknown): obj is Item => !isPayment(obj)
@@ -30,6 +30,7 @@ export interface CartInterface {
     saleItems(): SaleItemInterface[]
     findSaleItem(id: number): Either<string, SaleItemInterface>
     findSaleItems(ids: ItemID[]): SaleItemInterface[]
+    findTaxItemsBySaleItemId(id: ItemID): TaxItem[]
     hasSaleItems(): boolean
     lastSaleItem(): SaleItemInterface
     payments(): Payment[]
@@ -122,8 +123,8 @@ export class Cart implements CartInterface {
     }
 
     addItem(product: Product, quantity: number): CartInterface {
-      const price = product.prices.find(p => p.currency === this.currencyCode)!;
-      const saleItemId = this.nextItemId();
+      const price = product.prices.find(p => p.currency === this.currencyCode)!
+      const saleItemId = this.nextItemId()
       return new Cart(
         this.currencyCode,
         [
@@ -138,9 +139,8 @@ export class Cart implements CartInterface {
             new TaxItem(
               saleItemId + i + 1,
               saleItemId,
-              price.principal.div(tax.amount).mul(100).round(2), // display only
+              tax.rate,
               tax.code,
-              tax.amount
             )
           )
         ]
@@ -169,11 +169,11 @@ export class Cart implements CartInterface {
     }
 
     totalTax(): Big {
-      return sum(this.taxItems(), i => i.total())
+      return sum(this.taxItems(), i => i.total(this))
     }
 
     totalPromotions(): Big {
-      const v = sum(this.promotionItems(), p => p.total())
+      const v = sum(this.promotionItems(), p => p.total(this))
       const l = v.toString()
       return v
     }
@@ -182,7 +182,7 @@ export class Cart implements CartInterface {
       const t = sum([
         ...this.saleItems(),
         ...this.taxItems(),
-      ], i => i.total())
+      ], i => i.total(this))
       const p = this.totalPromotions()
       return t.sub(p)
     }
@@ -191,5 +191,9 @@ export class Cart implements CartInterface {
       const t = this.total()
       const p = this.totalPayments()
       return t.sub(p)
+    }
+
+    findTaxItemsBySaleItemId(id: ItemID): TaxItemInterface[] {
+      return this.items().filter(i => isTaxItem(i) && i.saleItemId === id) as TaxItemInterface[]
     }
 }

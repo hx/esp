@@ -1,5 +1,8 @@
 import Big from 'big.js'
-import {Item} from '../Cart'
+import { fold } from 'fp-ts/Either'
+import { CartInterface, Item } from '../Cart'
+import { SaleItemInterface } from '../productLineItem/ProductLineItem'
+import { zero } from '../util/sum'
 
 export const isTaxItem = (obj: unknown): obj is TaxItemInterface => obj instanceof TaxItem || obj instanceof TaxItem
 
@@ -8,7 +11,6 @@ export interface TaxItemInterface extends Item {
   saleItemId: number
   description: string
   rate: Big
-  amount: Big
 }
 
 export class TaxItem implements TaxItemInterface {
@@ -16,21 +18,22 @@ export class TaxItem implements TaxItemInterface {
   saleItemId: number
   description: string
   rate: Big
-  amount: Big
   constructor(
     id: number,
     saleItemId: number,
-    rate: Big, description: string, amount: Big
+    rate: Big, description: string
   ) {
     this.id = id
     this.saleItemId = saleItemId
     this.rate = rate
     this.description = description
-    this.amount = amount
   }
 
-  public total(): Big {
-    return this.amount
+  public total(cart: CartInterface): Big {
+    return fold(
+      () => zero,
+      (saleItem: SaleItemInterface)  => saleItem.amount.mul(this.rate)
+    )(cart.findSaleItem(this.saleItemId))
   }
 }
 

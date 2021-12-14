@@ -1,9 +1,9 @@
 import { Big } from 'big.js'
 import { EventBase } from '../../../esp'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
-import { Cart, CartInterface } from '../Cart'
+import { Store } from '../../Store'
+import { Cart } from '../Cart'
 import { TaxItem } from './TaxItem'
-import {Store, newStore} from '../../Store'
 
 type TaxEvent = EventBase<'tax', {
   itemID: number
@@ -17,15 +17,14 @@ export const buildTaxLineItems = (store: Store, add: EventClassCreator<Store>) =
 
 function addTax(store: Store, add: EventClassCreator<Store>) {
   const cart = store.cart
-  const singleItemTaxEvent = add<TaxEvent>('tax', 'Tax')
+  const event = add<TaxEvent>('tax', 'Tax')
     .handle(({event: {args: {rate}}}) => {
       const taxItems = cart.saleItems().map(saleItem =>
         new TaxItem(
           cart.nextItemId(),
           saleItem.id,
-          Big(rate),
+          Big(rate).div(100),
           `${rate}% Tax`,
-          Big(rate).div(100).mul(saleItem.total()),
         )
       )
       return {
@@ -36,5 +35,5 @@ function addTax(store: Store, add: EventClassCreator<Store>) {
         ])
       }
     })
-  singleItemTaxEvent.addArgument('rate', 'Rate', 10)
+  event.addArgument('rate', 'Rate %', 10)
 }

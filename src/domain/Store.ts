@@ -44,7 +44,7 @@ const DEFAULT_CATALOGUE: Catalogue = {
     {
       id: 'choc',
       name: 'Chocolate',
-      prices: [{currency: 'AUD', principal: Big('9.0909'), taxes: [{code: 'GST', amount: Big('0.9091')}]}]
+      prices: [{currency: 'AUD', principal: Big('9.0909'), taxes: [{code: 'GST', rate: Big('0.1')}]}]
     },
   ]
 }

@@ -7,7 +7,7 @@ export interface ProductTax {
   code: string
 
   /**
-   * Amount of tax on a unit of the product, in major units (e.g. dollars).
+   * Fractional tax rate e.g 0.1 for 10%.
    */
-  amount: Big
+  rate: Big
 }

@@ -1,13 +1,13 @@
 import { Big } from 'big.js'
+import { fold } from 'fp-ts/Either'
 import { EventBase } from '../../../esp'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
+import { Store } from '../../Store'
 import { Cart } from '../Cart'
 import { makeFormatter } from '../currency/MoneyFormatter'
 import { addSaleItemArgument } from '../productLineItem/productBuilder'
 import { SaleItemInterface } from '../productLineItem/ProductLineItem'
 import { PromotionItem } from './PromotionItem'
-import { fold } from 'fp-ts/Either'
-import {Store, newStore} from '../../Store'
 
 type PromotionEvent = EventBase<'promotion', {
   itemID: number
@@ -31,12 +31,13 @@ function addPromotion(store: Store, add: EventClassCreator<Store>) {
           `${format(Big(amount))} off`,
           Big(amount),
         )
-        return newStore(
-          new Cart(cart.currencyCode, [
+        return {
+          ...store,
+          cart: new Cart(cart.currencyCode, [
             ...cart.lines,
             promotionItem
           ])
-        )
+        }
       }
       return fold(reject, creatPromotionItem)(cart.findSaleItem(itemID))
     })

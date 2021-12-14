@@ -7,7 +7,7 @@ interface Sum {
 }
 
 const isBig = (obj: unknown): obj is Big => obj instanceof Big
-const zero = new Big(0)
+export const zero = new Big(0)
 
 export const sum: Sum = <T>(...args: unknown[]) => {
   if (args.every(isBig)) {

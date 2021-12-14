@@ -1,22 +1,21 @@
-import Big from 'big.js'
 import React, { FC, useMemo } from 'react'
+import { Catalogue } from '../../catalogue/Catalogue'
+import { CartInterface, Item } from '../Cart'
 import { MoneyFormatter } from '../currency/MoneyFormatter'
-import { Item } from '../Cart'
-import {PromotionItemInterface, getPromotionItems} from '../promotion/PromotionItem'
-import {TaxItemInterface, getTaxItems} from '../tax/TaxItem'
-import {TaxItemsView} from '../tax/TaxItemsView'
-import {PromotionItemsView} from '../promotion/PromotionItemsView'
-import {isSaleItem} from './ProductLineItem'
-import {Catalogue} from "../../catalogue/Catalogue";
+import { getPromotionItems, PromotionItemInterface } from '../promotion/PromotionItem'
+import { PromotionItemsView } from '../promotion/PromotionItemsView'
+import { getTaxItems, TaxItemInterface } from '../tax/TaxItem'
+import { TaxItemsView } from '../tax/TaxItemsView'
+import { isSaleItem } from './ProductLineItem'
 
 type Props = {
   items: Item[]
-  total: Big
+  cart: CartInterface
   format: MoneyFormatter
   catalogue: Catalogue
 }
 
-export const ItemsView: FC<Props> = ({items, format, total, catalogue}) => {
+export const ItemsView: FC<Props> = ({items, format, cart, catalogue}) => {
   if (items.length == 0) {
     return null
   }
@@ -46,14 +45,16 @@ export const ItemsView: FC<Props> = ({items, format, total, catalogue}) => {
                 <td>{product?.name || item.productId}</td>
                 <td className="text-end">{format(item.amount)}</td>
                 <td className="text-end">{item.quantity}</td>
-                <td className="text-end">{format(item.total())}</td>
+                <td className="text-end">{format(item.total(cart))}</td>
               </tr>
               <TaxItemsView
                 taxItems={taxItems}
                 otherItems={items}
                 format={format}
+                cart={cart}
               />
               <PromotionItemsView
+                cart={cart}
                 promotionItems={promotionItems}
                 otherItems={items}
                 format={format}
@@ -66,7 +67,7 @@ export const ItemsView: FC<Props> = ({items, format, total, catalogue}) => {
         <tr>
           <td/>
           <th colSpan={3} className="text-end">Items total</th>
-          <th className="text-end">{format(total)}</th>
+          <th className="text-end">{format(cart.total())}</th>
         </tr>
       </tfoot>
     </table>

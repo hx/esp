@@ -1,9 +1,9 @@
 import Big from 'big.js'
 import { EventBase } from '../../../esp'
 import { EventClassCreator } from '../../../esp/EventClassCreator'
+import { Store } from '../../Store'
 import { Cart } from '../Cart'
-import { PAYMENT_METHODS, Payment } from './Payment'
-import {Store, newStore} from '../../Store'
+import { Payment, PAYMENT_METHODS } from './Payment'
 
 type MakePaymentEvent = EventBase<'makePayment', {
   method: string
