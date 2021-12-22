@@ -35,7 +35,7 @@ To create a model that can be built by ESP, you'll need to implement:
 
 Model state can be any TypeScript type you like.
 
-You can organise your TypeScript files however you like with the [src](/src) directory.
+You can organise your TypeScript files however you like within the [src](/src) directory.
 
 ### Views
 
@@ -47,9 +47,9 @@ interface TodoList {
 }
 
 export const TodoListView: FC<Props<TodoList>> = ({aggregate: {projection: todoList}}) =>
-  <li className="todo-list">
+  <ol className="todo-list">
     …
-  </li>
+  </ol>
 ```
 
 #### Styles
@@ -70,7 +70,7 @@ const todoListAggregate = createAggregate(todoList, (todoList, add) => {
 
 ### Putting them together
 
-Boot ESP to build a model using an aggregate created by `createAggregate`, and a view with a `model` prop, by editing [src/index.ts](src/index.ts), which should call `boot` exactly once.
+Boot ESP to build a model using an aggregate created by `createAggregate<YourModel>`, and a view with `Props<YourModel>`, by editing [src/index.ts](src/index.ts), which should call `boot` exactly once.
 
 ```typescript jsx
 boot(todoListAggregate, TodoListView)
@@ -114,7 +114,7 @@ if (todoList.todos.length < 5) {
 
 ### Arguments
 
-Most event need to have information attached to them. You can add arguments to events, for which ESP will display form inputs when triggering those events.
+Most events need to have information attached to them. You can add arguments to events, for which ESP will display form inputs when triggering those events.
 
 ```typescript jsx
 type NewTodo = EventBase<'newTodo', {
