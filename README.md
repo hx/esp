@@ -39,19 +39,19 @@ You can organise your TypeScript files however you like with the [src](/src) dir
 
 ### Views
 
-Your model's view will be rendered on the right half of the screen. It should be implemented as a React component that
-accepts a single prop, `model`, of the type you've chosen as your model's state.
+Your model's view will be rendered on the right half of the screen. It should be implemented as a React component that accepts `Props<YourModel>`, which includes your aggregate, and a function your view can use to apply events to it.
 
 ```typescript jsx
 interface TodoList {
   todos: Todo[]
 }
 
-export const TodoListView: FC<{ model: TodoList }> = ({model}) =>
+export const TodoListView: FC<Props<TodoList>> = ({aggregate: {projection: todoList}}) =>
   <li className="todo-list">
     …
   </li>
 ```
+
 #### Styles
 
 ESP uses good ol' [Bootstrap](https://getbootstrap.com/) and [SCSS](https://sass-lang.com/) for its styling needs. Add an `@import` to [src/css/app.scss](src/css/app.scss) if you need extra CSS for your view.
@@ -61,7 +61,7 @@ ESP uses good ol' [Bootstrap](https://getbootstrap.com/) and [SCSS](https://sass
 Aggregates are a combination of a seed state and a function that will be called repeatedly to set up possible events.
 
 ```typescript jsx
-const todoList: TodoList = {Todos: []}
+const todoList: TodoList = {todos: []}
 
 const todoListAggregate = createAggregate(todoList, (todoList, add) => {
   // More on how this works below
@@ -74,6 +74,14 @@ Boot ESP to build a model using an aggregate created by `createAggregate`, and a
 
 ```typescript jsx
 boot(todoListAggregate, TodoListView)
+```
+
+#### View title
+
+The view title defaults to the name of your view, with spaces added (e.g. "Todo List View"). Pass a third argument to `boot` to specify a different view title.
+
+```typescript jsx
+boot(todoListAggregate, TodoListView, 'To-do List')
 ```
 
 ## Defining events
@@ -183,18 +191,35 @@ When you have multiple arguments, you can use the input state of other arguments
 
 Check out [chess/aggregate.ts](src/examples/chess/aggregate.ts) for an example of the `getArgument` function.
 
+### Applying events from your view
+
+Use the `applyEvent` prop from your view to apply an event.
+
+```typescript jsx
+const TodoItem: FC<{todo: Todo, index: number, applyEvent: ApplyEvent<TodoList>}> = ({todo, index, applyEvent}) => {
+  const onDelete = useCallback(() => applyEvent({name: 'deleteTodo', args: {index}}))
+
+  return (
+    <li>
+      <span className="description">{todo.description}</span>
+      <button className="delete" onClick={onDelete}>✕</button>
+    </li>
+  )
+}
+```
+
 ### Cleaning up
 
 It's worth noting that most of our applicators use the original `todoList` passed to the main processing function, relying on its closure scope to access that value.
 
 Once your process gets big enough, you may want to refactor your handlers into their own separate functions, which means this scope will no longer be available.
 
-Along with `event` and `reject`, which we've covered above, the payload passed to event handlers also has a `model` property. The handler above could be extracted by replacing `todoList` with `model`:
+Along with `event` and `reject`, which we've covered above, the payload passed to event handlers also has a `projection` property. The handler above could be extracted by replacing `todoList` with `model`:
 
 ```typescript jsx
-const handleDeleteTodoEvent: EventHandler<TodoList, DeleteTodo> = ({event, model}) => ({todos: [
-  ...model.todos.slice(0, event.index),
-  ...model.todos.slice(event.index + 1)
+const handleDeleteTodoEvent: EventHandler<TodoList, DeleteTodo> = ({event, projection}) => ({todos: [
+  ...projection.todos.slice(0, event.index),
+  ...projection.todos.slice(event.index + 1)
 ]})
 ```
 
